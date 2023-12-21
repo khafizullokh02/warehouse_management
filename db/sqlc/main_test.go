@@ -8,8 +8,6 @@ import (
 	"github.com/jaswdr/faker"
 )
 
-var testStore Store
-
 var (
 	fake faker.Faker
 )
