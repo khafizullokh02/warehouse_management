@@ -1,24 +1,35 @@
-package sqlc
+package db
 
 import (
 	"context"
+	"log"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
-type Warehouse interface {
+type Store interface {
 	Querier
-	CreateProduct(ctx context.Context, arg CreateProductParams) (CreateProductResult, error)
 }
 
 type SQLStore struct {
-	connPool *pgxpool.Pool
 	*Queries
+	DB *pgxpool.Pool
 }
 
-func NewWarehouse(connPool *pgxpool.Pool) Store {
+func NewStore(ctx context.Context, psqlURI string) Store {
+	db, err := pgxpool.New(ctx, psqlURI)
+	if err != nil {
+		panic(err)
+	}
+
+	if err := db.Ping(ctx); err != nil {
+		panic(err)
+	}
+
+	log.Println("Connected to DB!")
+
 	return &SQLStore{
-		connPool: connPool,
-		Queries:  New(connPool),
+		Queries: New(db),
+		DB:      db,
 	}
 }
