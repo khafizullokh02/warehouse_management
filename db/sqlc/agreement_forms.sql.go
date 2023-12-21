@@ -7,8 +7,6 @@ package db
 
 import (
 	"context"
-
-	"github.com/lib/pq"
 )
 
 const createAgreementForms = `-- name: CreateAgreementForms :one
@@ -36,11 +34,11 @@ type CreateAgreementFormsParams struct {
 }
 
 func (q *Queries) CreateAgreementForms(ctx context.Context, arg CreateAgreementFormsParams) (AgreementForm, error) {
-	row := q.db.QueryRowContext(ctx, createAgreementForms,
+	row := q.db.QueryRow(ctx, createAgreementForms,
 		arg.ID,
 		arg.FromAccount,
 		arg.ToAccount,
-		pq.Array(arg.ProductIds),
+		arg.ProductIds,
 		arg.ActionTypeForAgreement,
 		arg.WholesalePrice,
 		arg.RetailPrice,
@@ -50,7 +48,7 @@ func (q *Queries) CreateAgreementForms(ctx context.Context, arg CreateAgreementF
 		&i.ID,
 		&i.FromAccount,
 		&i.ToAccount,
-		pq.Array(&i.ProductIds),
+		&i.ProductIds,
 		&i.ActionTypeForAgreement,
 		&i.WholesalePrice,
 		&i.RetailPrice,
@@ -64,7 +62,7 @@ WHERE id = $1
 `
 
 func (q *Queries) DeleteAgreementForm(ctx context.Context, id int32) error {
-	_, err := q.db.ExecContext(ctx, deleteAgreementForm, id)
+	_, err := q.db.Exec(ctx, deleteAgreementForm, id)
 	return err
 }
 
@@ -74,13 +72,13 @@ WHERE id = $1 LIMIT 1
 `
 
 func (q *Queries) GetAgreementForm(ctx context.Context, id int32) (AgreementForm, error) {
-	row := q.db.QueryRowContext(ctx, getAgreementForm, id)
+	row := q.db.QueryRow(ctx, getAgreementForm, id)
 	var i AgreementForm
 	err := row.Scan(
 		&i.ID,
 		&i.FromAccount,
 		&i.ToAccount,
-		pq.Array(&i.ProductIds),
+		&i.ProductIds,
 		&i.ActionTypeForAgreement,
 		&i.WholesalePrice,
 		&i.RetailPrice,
@@ -101,19 +99,19 @@ type ListAgreementFormsParams struct {
 }
 
 func (q *Queries) ListAgreementForms(ctx context.Context, arg ListAgreementFormsParams) ([]AgreementForm, error) {
-	rows, err := q.db.QueryContext(ctx, listAgreementForms, arg.Limit, arg.Offset)
+	rows, err := q.db.Query(ctx, listAgreementForms, arg.Limit, arg.Offset)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	items := []AgreementForm{}
+	var items []AgreementForm
 	for rows.Next() {
 		var i AgreementForm
 		if err := rows.Scan(
 			&i.ID,
 			&i.FromAccount,
 			&i.ToAccount,
-			pq.Array(&i.ProductIds),
+			&i.ProductIds,
 			&i.ActionTypeForAgreement,
 			&i.WholesalePrice,
 			&i.RetailPrice,
@@ -121,9 +119,6 @@ func (q *Queries) ListAgreementForms(ctx context.Context, arg ListAgreementForms
 			return nil, err
 		}
 		items = append(items, i)
-	}
-	if err := rows.Close(); err != nil {
-		return nil, err
 	}
 	if err := rows.Err(); err != nil {
 		return nil, err
@@ -144,13 +139,13 @@ type UpdateAgreementFormParams struct {
 }
 
 func (q *Queries) UpdateAgreementForm(ctx context.Context, arg UpdateAgreementFormParams) (AgreementForm, error) {
-	row := q.db.QueryRowContext(ctx, updateAgreementForm, arg.ID, arg.ActionTypeForAgreement)
+	row := q.db.QueryRow(ctx, updateAgreementForm, arg.ID, arg.ActionTypeForAgreement)
 	var i AgreementForm
 	err := row.Scan(
 		&i.ID,
 		&i.FromAccount,
 		&i.ToAccount,
-		pq.Array(&i.ProductIds),
+		&i.ProductIds,
 		&i.ActionTypeForAgreement,
 		&i.WholesalePrice,
 		&i.RetailPrice,

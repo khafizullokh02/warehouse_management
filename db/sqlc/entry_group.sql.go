@@ -32,7 +32,7 @@ type CreateEntryGroupParams struct {
 }
 
 func (q *Queries) CreateEntryGroup(ctx context.Context, arg CreateEntryGroupParams) (EntryGroup, error) {
-	row := q.db.QueryRowContext(ctx, createEntryGroup,
+	row := q.db.QueryRow(ctx, createEntryGroup,
 		arg.ID,
 		arg.Quantity,
 		arg.ActionType,
@@ -62,7 +62,7 @@ WHERE id = $1
 `
 
 func (q *Queries) DeleteEntryGroup(ctx context.Context, id int32) error {
-	_, err := q.db.ExecContext(ctx, deleteEntryGroup, id)
+	_, err := q.db.Exec(ctx, deleteEntryGroup, id)
 	return err
 }
 
@@ -72,7 +72,7 @@ WHERE id = $1 LIMIT 1
 `
 
 func (q *Queries) GetEntryGroup(ctx context.Context, id int32) (EntryGroup, error) {
-	row := q.db.QueryRowContext(ctx, getEntryGroup, id)
+	row := q.db.QueryRow(ctx, getEntryGroup, id)
 	var i EntryGroup
 	err := row.Scan(
 		&i.ID,
@@ -102,12 +102,12 @@ type ListEntryGroupsParams struct {
 }
 
 func (q *Queries) ListEntryGroups(ctx context.Context, arg ListEntryGroupsParams) ([]EntryGroup, error) {
-	rows, err := q.db.QueryContext(ctx, listEntryGroups, arg.Limit, arg.Offset)
+	rows, err := q.db.Query(ctx, listEntryGroups, arg.Limit, arg.Offset)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	items := []EntryGroup{}
+	var items []EntryGroup
 	for rows.Next() {
 		var i EntryGroup
 		if err := rows.Scan(
@@ -125,9 +125,6 @@ func (q *Queries) ListEntryGroups(ctx context.Context, arg ListEntryGroupsParams
 			return nil, err
 		}
 		items = append(items, i)
-	}
-	if err := rows.Close(); err != nil {
-		return nil, err
 	}
 	if err := rows.Err(); err != nil {
 		return nil, err
@@ -148,7 +145,7 @@ type UpdateEntryGroupParams struct {
 }
 
 func (q *Queries) UpdateEntryGroup(ctx context.Context, arg UpdateEntryGroupParams) (EntryGroup, error) {
-	row := q.db.QueryRowContext(ctx, updateEntryGroup, arg.ID, arg.Price)
+	row := q.db.QueryRow(ctx, updateEntryGroup, arg.ID, arg.Price)
 	var i EntryGroup
 	err := row.Scan(
 		&i.ID,

@@ -28,7 +28,7 @@ type CreateEntryItemsParams struct {
 }
 
 func (q *Queries) CreateEntryItems(ctx context.Context, arg CreateEntryItemsParams) (EntryItem, error) {
-	row := q.db.QueryRowContext(ctx, createEntryItems,
+	row := q.db.QueryRow(ctx, createEntryItems,
 		arg.ID,
 		arg.ProductID,
 		arg.EntryGroupID,
@@ -50,7 +50,7 @@ WHERE id = $1
 `
 
 func (q *Queries) DeleteEntryItems(ctx context.Context, id int32) error {
-	_, err := q.db.ExecContext(ctx, deleteEntryItems, id)
+	_, err := q.db.Exec(ctx, deleteEntryItems, id)
 	return err
 }
 
@@ -60,7 +60,7 @@ WHERE id = $1 LIMIT 1
 `
 
 func (q *Queries) GetEntryItems(ctx context.Context, id int32) (EntryItem, error) {
-	row := q.db.QueryRowContext(ctx, getEntryItems, id)
+	row := q.db.QueryRow(ctx, getEntryItems, id)
 	var i EntryItem
 	err := row.Scan(
 		&i.ID,
@@ -84,12 +84,12 @@ type ListEntryItemsParams struct {
 }
 
 func (q *Queries) ListEntryItems(ctx context.Context, arg ListEntryItemsParams) ([]EntryItem, error) {
-	rows, err := q.db.QueryContext(ctx, listEntryItems, arg.Limit, arg.Offset)
+	rows, err := q.db.Query(ctx, listEntryItems, arg.Limit, arg.Offset)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	items := []EntryItem{}
+	var items []EntryItem
 	for rows.Next() {
 		var i EntryItem
 		if err := rows.Scan(
@@ -101,9 +101,6 @@ func (q *Queries) ListEntryItems(ctx context.Context, arg ListEntryItemsParams) 
 			return nil, err
 		}
 		items = append(items, i)
-	}
-	if err := rows.Close(); err != nil {
-		return nil, err
 	}
 	if err := rows.Err(); err != nil {
 		return nil, err
@@ -124,7 +121,7 @@ type UpdateEntryItemsParams struct {
 }
 
 func (q *Queries) UpdateEntryItems(ctx context.Context, arg UpdateEntryItemsParams) (EntryItem, error) {
-	row := q.db.QueryRowContext(ctx, updateEntryItems, arg.ID, arg.ProductID)
+	row := q.db.QueryRow(ctx, updateEntryItems, arg.ID, arg.ProductID)
 	var i EntryItem
 	err := row.Scan(
 		&i.ID,

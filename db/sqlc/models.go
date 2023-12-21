@@ -5,10 +5,11 @@
 package db
 
 import (
-	"database/sql"
 	"database/sql/driver"
 	"fmt"
-	"time"
+
+	"github.com/jackc/pgx/v5/pgtype"
+	zero "gopkg.in/guregu/null.v4/zero"
 )
 
 type ActionType string
@@ -260,9 +261,9 @@ type EntryGroup struct {
 	Price             float64           `json:"price"`
 	Currency          CurrencyCode      `json:"currency"`
 	EntryGroupsStatus EntryGroupsStatus `json:"entry_groups_status"`
-	CreatedAt         time.Time         `json:"created_at"`
-	UpdatedAt         time.Time         `json:"updated_at"`
-	DeletedAt         sql.NullTime      `json:"deleted_at"`
+	CreatedAt         pgtype.Timestamp  `json:"created_at"`
+	UpdatedAt         pgtype.Timestamp  `json:"updated_at"`
+	DeletedAt         zero.Time         `json:"deleted_at"`
 }
 
 type EntryItem struct {
@@ -273,24 +274,24 @@ type EntryItem struct {
 }
 
 type Product struct {
-	ID             int32     `json:"id"`
-	Name           string    `json:"name"`
-	SupCode        string    `json:"sup_code"`
-	BarCode        string    `json:"bar_code"`
-	Image          string    `json:"image"`
-	Brand          string    `json:"brand"`
-	WholesalePrice float64   `json:"wholesale_price"`
-	RetailPrice    float64   `json:"retail_price"`
-	Discount       float64   `json:"discount"`
-	CreatedAt      time.Time `json:"created_at"`
+	ID             int32            `json:"id"`
+	Name           string           `json:"name"`
+	SupCode        string           `json:"sup_code"`
+	BarCode        string           `json:"bar_code"`
+	Image          string           `json:"image"`
+	Brand          string           `json:"brand"`
+	WholesalePrice float64          `json:"wholesale_price"`
+	RetailPrice    float64          `json:"retail_price"`
+	Discount       float64          `json:"discount"`
+	CreatedAt      pgtype.Timestamp `json:"created_at"`
 }
 
 type User struct {
-	ID        int32        `json:"id"`
-	Name      string       `json:"name"`
-	Email     string       `json:"email"`
-	Password  string       `json:"password"`
-	CreatedAt time.Time    `json:"created_at"`
-	UpdatedAt time.Time    `json:"updated_at"`
-	DeletedAt sql.NullTime `json:"deleted_at"`
+	ID        int32            `json:"id"`
+	Name      string           `json:"name"`
+	Email     string           `json:"email"`
+	Password  string           `json:"password"`
+	CreatedAt pgtype.Timestamp `json:"created_at"`
+	UpdatedAt pgtype.Timestamp `json:"updated_at"`
+	DeletedAt zero.Time        `json:"deleted_at"`
 }
