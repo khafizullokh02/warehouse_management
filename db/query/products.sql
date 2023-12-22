@@ -1,20 +1,19 @@
 -- name: CreateProduct :one
 INSERT INTO products (
-  id,
   name,
   image,
   brand
 ) VALUES (
-  $1, $2, $3, $4
+  $1, $2, $3
 ) RETURNING *;
 
 -- name: GetProduct :one
 SELECT * FROM products
-WHERE id = $1 LIMIT 1;
+WHERE name = $1 LIMIT 1;
 
 -- name: ListProducts :many
 SELECT * FROM products
-ORDER BY id
+ORDER BY name
 LIMIT $1
 OFFSET $2;
 

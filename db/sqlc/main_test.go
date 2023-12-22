@@ -9,7 +9,8 @@ import (
 )
 
 var (
-	fake faker.Faker
+	fake      faker.Faker
+	testStore Store
 )
 
 func TestMain(m *testing.M) {

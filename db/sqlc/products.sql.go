@@ -11,29 +11,22 @@ import (
 
 const createProduct = `-- name: CreateProduct :one
 INSERT INTO products (
-  id,
   name,
   image,
   brand
 ) VALUES (
-  $1, $2, $3, $4
+  $1, $2, $3
 ) RETURNING id, name, sup_code, bar_code, image, brand, wholesale_price, retail_price, discount, created_at
 `
 
 type CreateProductParams struct {
-	ID    int32  `json:"id"`
 	Name  string `json:"name"`
 	Image string `json:"image"`
 	Brand string `json:"brand"`
 }
 
 func (q *Queries) CreateProduct(ctx context.Context, arg CreateProductParams) (Product, error) {
-	row := q.db.QueryRow(ctx, createProduct,
-		arg.ID,
-		arg.Name,
-		arg.Image,
-		arg.Brand,
-	)
+	row := q.db.QueryRow(ctx, createProduct, arg.Name, arg.Image, arg.Brand)
 	var i Product
 	err := row.Scan(
 		&i.ID,
@@ -62,11 +55,11 @@ func (q *Queries) DeleteProduct(ctx context.Context, id int32) error {
 
 const getProduct = `-- name: GetProduct :one
 SELECT id, name, sup_code, bar_code, image, brand, wholesale_price, retail_price, discount, created_at FROM products
-WHERE id = $1 LIMIT 1
+WHERE name = $1 LIMIT 1
 `
 
-func (q *Queries) GetProduct(ctx context.Context, id int32) (Product, error) {
-	row := q.db.QueryRow(ctx, getProduct, id)
+func (q *Queries) GetProduct(ctx context.Context, name string) (Product, error) {
+	row := q.db.QueryRow(ctx, getProduct, name)
 	var i Product
 	err := row.Scan(
 		&i.ID,
@@ -85,7 +78,7 @@ func (q *Queries) GetProduct(ctx context.Context, id int32) (Product, error) {
 
 const listProducts = `-- name: ListProducts :many
 SELECT id, name, sup_code, bar_code, image, brand, wholesale_price, retail_price, discount, created_at FROM products
-ORDER BY id
+ORDER BY name
 LIMIT $1
 OFFSET $2
 `
