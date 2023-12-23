@@ -4,7 +4,6 @@ import (
 	"context"
 	"testing"
 
-	"github.com/jackc/pgx/pgtype"
 	"github.com/jaswdr/faker"
 	"github.com/stretchr/testify/require"
 )
@@ -52,10 +51,6 @@ func TestUpdateProductOnlyName(t *testing.T) {
 	newName := fake.Food().Vegetable()
 	updatedProduct, err := testStore.UpdateProduct(context.Background(), UpdateProductParams{
 		ID: oldProduct.ID,
-		Name: pgtype.Text{
-			String: newName,
-			Valid:  true,
-		},
 	})
 
 	require.NoError(t, err)
@@ -71,10 +66,6 @@ func TestUpdateProductOnlyImage(t *testing.T) {
 	newImage := fake.Food().Vegetable()
 	updatedProduct, err := testStore.UpdateProduct(context.Background(), UpdateProductParams{
 		ID: oldProduct.ID,
-		Image: pgtype.Text{
-			String: newImage,
-			Valid:  true,
-		},
 	})
 
 	require.NoError(t, err)
@@ -90,10 +81,6 @@ func TestUpdateProductOnlyBrand(t *testing.T) {
 	newBrand := fake.Food().Vegetable()
 	updatedProduct, err := testStore.UpdateProduct(context.Background(), UpdateProductParams{
 		ID: oldProduct.ID,
-		Brand: pgtype.Text{
-			String: newBrand,
-			Valid:  true,
-		},
 	})
 
 	require.NoError(t, err)
@@ -112,14 +99,6 @@ func TestUpdateProductAllFields(t *testing.T) {
 
 	updatedProduct, err := testStore.UpdateProduct(context.Background(), UpdateProductParams{
 		Name: oldProduct.Name,
-		Image: pgtype.Text{
-			String: newImage,
-			Valid:  true,
-		},
-		Brand: pgtype.Text{
-			String: newBrand,
-			Valid: true,
-		},
 	})
 
 	require.NoError(t, err)
