@@ -1,21 +1,35 @@
 -- name: CreateProduct :one
 INSERT INTO products (
-  name,
-  image,
-  brand
-) VALUES (
-  $1, $2, $3
-) RETURNING *;
+    name,
+    sup_code,
+    bar_code,
+    image,
+    brand,
+    wholesale_price,
+    retail_price
+  )
+VALUES (
+    sqlc.arg(name),
+    sqlc.arg(sup_code),
+    sqlc.arg(bar_code),
+    sqlc.arg(image),
+    sqlc.arg(brand),
+    sqlc.arg(wholesale_price),
+    sqlc.arg(retail_price)
+  )
+RETURNING *;
 
 -- name: GetProduct :one
-SELECT * FROM products
-WHERE name = $1 LIMIT 1;
+SELECT *
+FROM products
+WHERE name = $1
+LIMIT 1;
 
 -- name: ListProducts :many
-SELECT * FROM products
+SELECT *
+FROM products
 ORDER BY name
-LIMIT $1
-OFFSET $2;
+LIMIT $1 OFFSET $2;
 
 -- name: UpdateProduct :one
 UPDATE products

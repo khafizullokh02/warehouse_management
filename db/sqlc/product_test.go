@@ -10,9 +10,13 @@ import (
 
 func createRandomProduct(t *testing.T) Product {
 	arg := CreateProductParams{
-		Name:  fake.Food().Vegetable(),
-		Image: fake.Food().Vegetable(),
-		Brand: fake.RandomStringElement([]string{"apple", "samsung", "xiaomi"}),
+		Name:           fake.Food().Vegetable(),
+		Image:          fake.Food().Vegetable(),
+		Brand:          fake.RandomStringElement([]string{"apple", "samsung", "xiaomi"}),
+		SupCode:        fake.RandomStringWithLength(10),
+		BarCode:        fake.RandomStringWithLength(10),
+		WholesalePrice: fake.RandomFloat(2, 100, 1000),
+		RetailPrice:    fake.RandomFloat(2, 100, 1000),
 	}
 
 	product, err := testStore.CreateProduct(context.Background(), arg)
