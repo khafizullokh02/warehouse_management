@@ -7,26 +7,30 @@ package db
 
 import (
 	"context"
+
+	zero "gopkg.in/guregu/null.v4/zero"
 )
 
 const createProduct = `-- name: CreateProduct :one
 INSERT INTO products (
-  name,
-  sup_code,
-  bar_code,
-  image,
-  brand,
-  wholesale_price,
-  retail_price
-) VALUES (
-  $1,
-  $2,
-  $3,
-  $4,
-  $5,
-  $6,
-  $7
-) RETURNING id, name, sup_code, bar_code, image, brand, wholesale_price, retail_price, discount, created_at
+    name,
+    sup_code,
+    bar_code,
+    image,
+    brand,
+    wholesale_price,
+    retail_price
+  )
+VALUES (
+    $1,
+    $2,
+    $3,
+    $4,
+    $5,
+    $6,
+    $7
+  )
+RETURNING id, name, sup_code, bar_code, image, brand, wholesale_price, retail_price, discount, created_at
 `
 
 type CreateProductParams struct {
@@ -76,9 +80,9 @@ func (q *Queries) DeleteProduct(ctx context.Context, id int32) error {
 }
 
 const getProduct = `-- name: GetProduct :one
-SELECT id, name, sup_code, bar_code, image, brand, wholesale_price, retail_price, discount, created_at 
+SELECT id, name, sup_code, bar_code, image, brand, wholesale_price, retail_price, discount, created_at
 FROM products
-WHERE name = $1 
+WHERE name = $1
 LIMIT 1
 `
 
@@ -101,11 +105,10 @@ func (q *Queries) GetProduct(ctx context.Context, id string) (Product, error) {
 }
 
 const listProducts = `-- name: ListProducts :many
-SELECT id, name, sup_code, bar_code, image, brand, wholesale_price, retail_price, discount, created_at 
+SELECT id, name, sup_code, bar_code, image, brand, wholesale_price, retail_price, discount, created_at
 FROM products
 ORDER BY name
-LIMIT $2
-OFFSET $1
+LIMIT $2 OFFSET $1
 `
 
 type ListProductsParams struct {
@@ -146,18 +149,42 @@ func (q *Queries) ListProducts(ctx context.Context, arg ListProductsParams) ([]P
 
 const updateProduct = `-- name: UpdateProduct :one
 UPDATE products
-SET name = $1
-WHERE id = $2
+SET name = COALESCE($1, name),
+  sup_code = COALESCE($2, sup_code),
+  bar_code = COALESCE($3, bar_code),
+  image = COALESCE($4, image),
+  brand = COALESCE($5, brand),
+  wholesale_price = COALESCE($6, wholesale_price),
+  retail_price = COALESCE($7, retail_price),
+  discount = COALESCE($8, discount)
+WHERE id = $9
 RETURNING id, name, sup_code, bar_code, image, brand, wholesale_price, retail_price, discount, created_at
 `
 
 type UpdateProductParams struct {
-	Name string `json:"name"`
-	ID   int32  `json:"id"`
+	Name           zero.String `json:"name"`
+	SupCode        zero.String `json:"sup_code"`
+	BarCode        zero.String `json:"bar_code"`
+	Image          zero.String `json:"image"`
+	Brand          zero.String `json:"brand"`
+	WholesalePrice zero.Float  `json:"wholesale_price"`
+	RetailPrice    zero.Float  `json:"retail_price"`
+	Discount       zero.Float  `json:"discount"`
+	ID             int32       `json:"id"`
 }
 
 func (q *Queries) UpdateProduct(ctx context.Context, arg UpdateProductParams) (Product, error) {
-	row := q.db.QueryRow(ctx, updateProduct, arg.Name, arg.ID)
+	row := q.db.QueryRow(ctx, updateProduct,
+		arg.Name,
+		arg.SupCode,
+		arg.BarCode,
+		arg.Image,
+		arg.Brand,
+		arg.WholesalePrice,
+		arg.RetailPrice,
+		arg.Discount,
+		arg.ID,
+	)
 	var i Product
 	err := row.Scan(
 		&i.ID,
