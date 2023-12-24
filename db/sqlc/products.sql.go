@@ -11,22 +11,48 @@ import (
 
 const createProduct = `-- name: CreateProduct :one
 INSERT INTO products (
+  id,
   name,
+  sup_code,
+  bar_code,
   image,
-  brand
+  brand,
+  wholesale_price,
+  retail_price
 ) VALUES (
-  $1, $2, $3
+  $1,
+  $2,
+  $3,
+  $4,
+  $5,
+  $6,
+  $7,
+  $8
 ) RETURNING id, name, sup_code, bar_code, image, brand, wholesale_price, retail_price, discount, created_at
 `
 
 type CreateProductParams struct {
-	Name  string `json:"name"`
-	Image string `json:"image"`
-	Brand string `json:"brand"`
+	ID             int32   `json:"id"`
+	Name           string  `json:"name"`
+	SupCode        string  `json:"sup_code"`
+	BarCode        string  `json:"bar_code"`
+	Image          string  `json:"image"`
+	Brand          string  `json:"brand"`
+	WholesalePrice float64 `json:"wholesale_price"`
+	RetailPrice    float64 `json:"retail_price"`
 }
 
 func (q *Queries) CreateProduct(ctx context.Context, arg CreateProductParams) (Product, error) {
-	row := q.db.QueryRow(ctx, createProduct, arg.Name, arg.Image, arg.Brand)
+	row := q.db.QueryRow(ctx, createProduct,
+		arg.ID,
+		arg.Name,
+		arg.SupCode,
+		arg.BarCode,
+		arg.Image,
+		arg.Brand,
+		arg.WholesalePrice,
+		arg.RetailPrice,
+	)
 	var i Product
 	err := row.Scan(
 		&i.ID,
@@ -54,12 +80,14 @@ func (q *Queries) DeleteProduct(ctx context.Context, id int32) error {
 }
 
 const getProduct = `-- name: GetProduct :one
-SELECT id, name, sup_code, bar_code, image, brand, wholesale_price, retail_price, discount, created_at FROM products
-WHERE name = $1 LIMIT 1
+SELECT id, name, sup_code, bar_code, image, brand, wholesale_price, retail_price, discount, created_at 
+FROM products
+WHERE name = $1 
+LIMIT 1
 `
 
-func (q *Queries) GetProduct(ctx context.Context, name string) (Product, error) {
-	row := q.db.QueryRow(ctx, getProduct, name)
+func (q *Queries) GetProduct(ctx context.Context, id string) (Product, error) {
+	row := q.db.QueryRow(ctx, getProduct, id)
 	var i Product
 	err := row.Scan(
 		&i.ID,
@@ -77,19 +105,20 @@ func (q *Queries) GetProduct(ctx context.Context, name string) (Product, error) 
 }
 
 const listProducts = `-- name: ListProducts :many
-SELECT id, name, sup_code, bar_code, image, brand, wholesale_price, retail_price, discount, created_at FROM products
+SELECT id, name, sup_code, bar_code, image, brand, wholesale_price, retail_price, discount, created_at 
+FROM products
 ORDER BY name
-LIMIT $1
-OFFSET $2
+LIMIT $2
+OFFSET $1
 `
 
 type ListProductsParams struct {
-	Limit  int32 `json:"limit"`
-	Offset int32 `json:"offset"`
+	Name int32 `json:"name"`
+	ID   int32 `json:"id"`
 }
 
 func (q *Queries) ListProducts(ctx context.Context, arg ListProductsParams) ([]Product, error) {
-	rows, err := q.db.Query(ctx, listProducts, arg.Limit, arg.Offset)
+	rows, err := q.db.Query(ctx, listProducts, arg.Name, arg.ID)
 	if err != nil {
 		return nil, err
 	}
@@ -121,18 +150,18 @@ func (q *Queries) ListProducts(ctx context.Context, arg ListProductsParams) ([]P
 
 const updateProduct = `-- name: UpdateProduct :one
 UPDATE products
-SET name = $2
-WHERE id = $1
+SET name = $1
+WHERE id = $2
 RETURNING id, name, sup_code, bar_code, image, brand, wholesale_price, retail_price, discount, created_at
 `
 
 type UpdateProductParams struct {
-	ID   int32  `json:"id"`
 	Name string `json:"name"`
+	ID   int32  `json:"id"`
 }
 
 func (q *Queries) UpdateProduct(ctx context.Context, arg UpdateProductParams) (Product, error) {
-	row := q.db.QueryRow(ctx, updateProduct, arg.ID, arg.Name)
+	row := q.db.QueryRow(ctx, updateProduct, arg.Name, arg.ID)
 	var i Product
 	err := row.Scan(
 		&i.ID,

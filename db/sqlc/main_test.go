@@ -1,7 +1,7 @@
 package db
 
 import (
-	"fmt"
+	"context"
 	"os"
 	"testing"
 
@@ -13,12 +13,13 @@ var (
 	testStore Store
 )
 
+const (
+	dbSource = "postgres://root:secret@localhost:5432/warehouse_management?sslmode=disable"
+)
+
+
 func TestMain(m *testing.M) {
 	fake = faker.New()
-
-	for i := 0; i < 10; i++ {
-		fmt.Println(fake.Address().Address())
-	}
-
+	testStore = NewStore(context.Background(), dbSource)
 	os.Exit(m.Run())
 }

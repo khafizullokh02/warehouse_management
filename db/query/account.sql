@@ -4,25 +4,29 @@ INSERT INTO accounts (
   user_id,
   name
 ) VALUES (
-  $1, $2, $3
+  sqlc.arg(id),
+  sqlc.arg(user_id),
+  sqlc.arg(name)
 ) RETURNING *;
 
 -- name: GetAccount :one
-SELECT * FROM accounts
-WHERE id = $1 LIMIT 1;
+SELECT * 
+FROM accounts
+WHERE id = sqlc.arg(id) LIMIT 1;
 
 -- name: ListAccounts :many
-SELECT * FROM accounts
+SELECT * 
+FROM accounts
 ORDER BY id
-LIMIT $1
-OFFSET $2;
+LIMIT sqlc.arg(id)
+OFFSET sqlc.arg(user_id);
 
 -- name: UpdateAccount :one
 UPDATE accounts
-SET name = $2
-WHERE id = $1
+SET name = sqlc.arg(name)
+WHERE id = sqlc.arg(id)
 RETURNING *;
 
 -- name: DeleteAccount :exec
 DELETE FROM accounts
-WHERE id = $1;
+WHERE id = sqlc.arg(id);

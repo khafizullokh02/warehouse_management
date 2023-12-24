@@ -15,7 +15,9 @@ INSERT INTO users (
   email,
   password
 ) VALUES (
-  $1, $2, $3
+  $1,
+  $2,
+  $3
 ) RETURNING id, name, email, password, created_at, updated_at, deleted_at
 `
 
@@ -51,8 +53,10 @@ func (q *Queries) DeleteUser(ctx context.Context, id int32) error {
 }
 
 const getUser = `-- name: GetUser :one
-SELECT id, name, email, password, created_at, updated_at, deleted_at FROM users
-WHERE id = $1 LIMIT 1
+SELECT id, name, email, password, created_at, updated_at, deleted_at 
+FROM users
+WHERE id = $1 
+LIMIT 1
 `
 
 func (q *Queries) GetUser(ctx context.Context, id int32) (User, error) {
@@ -71,19 +75,20 @@ func (q *Queries) GetUser(ctx context.Context, id int32) (User, error) {
 }
 
 const listUsers = `-- name: ListUsers :many
-SELECT id, name, email, password, created_at, updated_at, deleted_at FROM users
+SELECT id, name, email, password, created_at, updated_at, deleted_at 
+FROM users
 ORDER BY id
-LIMIT $1
-OFFSET $2
+LIMIT $2
+OFFSET $1
 `
 
 type ListUsersParams struct {
-	Limit  int32 `json:"limit"`
-	Offset int32 `json:"offset"`
+	Name int32 `json:"name"`
+	ID   int32 `json:"id"`
 }
 
 func (q *Queries) ListUsers(ctx context.Context, arg ListUsersParams) ([]User, error) {
-	rows, err := q.db.Query(ctx, listUsers, arg.Limit, arg.Offset)
+	rows, err := q.db.Query(ctx, listUsers, arg.Name, arg.ID)
 	if err != nil {
 		return nil, err
 	}
@@ -112,18 +117,18 @@ func (q *Queries) ListUsers(ctx context.Context, arg ListUsersParams) ([]User, e
 
 const updateUser = `-- name: UpdateUser :one
 UPDATE users
-SET email = $2
-WHERE id = $1
+SET email = $1
+WHERE id = $2
 RETURNING id, name, email, password, created_at, updated_at, deleted_at
 `
 
 type UpdateUserParams struct {
-	ID    int32  `json:"id"`
 	Email string `json:"email"`
+	ID    int32  `json:"id"`
 }
 
 func (q *Queries) UpdateUser(ctx context.Context, arg UpdateUserParams) (User, error) {
-	row := q.db.QueryRow(ctx, updateUser, arg.ID, arg.Email)
+	row := q.db.QueryRow(ctx, updateUser, arg.Email, arg.ID)
 	var i User
 	err := row.Scan(
 		&i.ID,

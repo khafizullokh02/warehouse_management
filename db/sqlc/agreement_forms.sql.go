@@ -15,11 +15,13 @@ INSERT INTO agreement_forms (
   from_account,
   to_account,
   product_ids,
-  action_type_for_agreement,
-  wholesale_price,
-  retail_price
+  action_type_for_agreement
 ) VALUES (
-  $1, $2, $3, $4, $5, $6, $7
+  $1,
+  $2,
+  $3,
+  $4,
+  $5
 ) RETURNING id, from_account, to_account, product_ids, action_type_for_agreement, wholesale_price, retail_price
 `
 
@@ -29,8 +31,6 @@ type CreateAgreementFormsParams struct {
 	ToAccount              int32      `json:"to_account"`
 	ProductIds             []int32    `json:"product_ids"`
 	ActionTypeForAgreement ActionType `json:"action_type_for_agreement"`
-	WholesalePrice         float64    `json:"wholesale_price"`
-	RetailPrice            float64    `json:"retail_price"`
 }
 
 func (q *Queries) CreateAgreementForms(ctx context.Context, arg CreateAgreementFormsParams) (AgreementForm, error) {
@@ -40,8 +40,6 @@ func (q *Queries) CreateAgreementForms(ctx context.Context, arg CreateAgreementF
 		arg.ToAccount,
 		arg.ProductIds,
 		arg.ActionTypeForAgreement,
-		arg.WholesalePrice,
-		arg.RetailPrice,
 	)
 	var i AgreementForm
 	err := row.Scan(
@@ -67,8 +65,10 @@ func (q *Queries) DeleteAgreementForm(ctx context.Context, id int32) error {
 }
 
 const getAgreementForm = `-- name: GetAgreementForm :one
-SELECT id, from_account, to_account, product_ids, action_type_for_agreement, wholesale_price, retail_price FROM agreement_forms
-WHERE id = $1 LIMIT 1
+SELECT id, from_account, to_account, product_ids, action_type_for_agreement, wholesale_price, retail_price 
+FROM agreement_forms
+WHERE id = $1 
+LIMIT 1
 `
 
 func (q *Queries) GetAgreementForm(ctx context.Context, id int32) (AgreementForm, error) {
@@ -87,19 +87,20 @@ func (q *Queries) GetAgreementForm(ctx context.Context, id int32) (AgreementForm
 }
 
 const listAgreementForms = `-- name: ListAgreementForms :many
-SELECT id, from_account, to_account, product_ids, action_type_for_agreement, wholesale_price, retail_price FROM agreement_forms
+SELECT id, from_account, to_account, product_ids, action_type_for_agreement, wholesale_price, retail_price 
+FROM agreement_forms
 ORDER BY id
-LIMIT $1
-OFFSET $2
+LIMIT $2
+OFFSET $1
 `
 
 type ListAgreementFormsParams struct {
-	Limit  int32 `json:"limit"`
-	Offset int32 `json:"offset"`
+	FromAccount int32 `json:"from_account"`
+	ID          int32 `json:"id"`
 }
 
 func (q *Queries) ListAgreementForms(ctx context.Context, arg ListAgreementFormsParams) ([]AgreementForm, error) {
-	rows, err := q.db.Query(ctx, listAgreementForms, arg.Limit, arg.Offset)
+	rows, err := q.db.Query(ctx, listAgreementForms, arg.FromAccount, arg.ID)
 	if err != nil {
 		return nil, err
 	}
@@ -128,18 +129,18 @@ func (q *Queries) ListAgreementForms(ctx context.Context, arg ListAgreementForms
 
 const updateAgreementForm = `-- name: UpdateAgreementForm :one
 UPDATE agreement_forms
-SET action_type_for_agreement = $2
-WHERE id = $1
+SET action_type_for_agreement = $1
+WHERE id = $2
 RETURNING id, from_account, to_account, product_ids, action_type_for_agreement, wholesale_price, retail_price
 `
 
 type UpdateAgreementFormParams struct {
-	ID                     int32      `json:"id"`
 	ActionTypeForAgreement ActionType `json:"action_type_for_agreement"`
+	ID                     int32      `json:"id"`
 }
 
 func (q *Queries) UpdateAgreementForm(ctx context.Context, arg UpdateAgreementFormParams) (AgreementForm, error) {
-	row := q.db.QueryRow(ctx, updateAgreementForm, arg.ID, arg.ActionTypeForAgreement)
+	row := q.db.QueryRow(ctx, updateAgreementForm, arg.ActionTypeForAgreement, arg.ID)
 	var i AgreementForm
 	err := row.Scan(
 		&i.ID,

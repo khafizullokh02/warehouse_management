@@ -9,21 +9,24 @@ INSERT INTO entry_items (
 ) RETURNING *;
 
 -- name: GetEntryItems :one
-SELECT * FROM entry_items
-WHERE id = $1 LIMIT 1;
+SELECT * 
+FROM entry_items
+WHERE id = sqlc.arg(id)
+LIMIT 1;
 
 -- name: ListEntryItems :many
-SELECT * FROM entry_items
+SELECT * 
+FROM entry_items
 ORDER BY id
-LIMIT $1
-OFFSET $2;
+LIMIT sqlc.arg(id)
+OFFSET sqlc.arg(product_id);
 
 -- name: UpdateEntryItems :one
 UPDATE entry_items
-SET product_id = $2
-WHERE id = $1
+SET product_id = sqlc.arg(product_id)
+WHERE id = sqlc.arg(id)
 RETURNING *;
 
 -- name: DeleteEntryItems :exec
 DELETE FROM entry_items
-WHERE id = $1;
+WHERE id = sqlc.arg(id);
