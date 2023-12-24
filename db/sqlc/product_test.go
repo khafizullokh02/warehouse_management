@@ -56,8 +56,14 @@ func TestUpdateProduct(t *testing.T) {
 	product := createRandomProduct(t)
 
 	updatingProperties := map[string]any{
-		"name":     fake.Food().Vegetable(),
-		"discount": fake.Float64(2, 1, 10),
+		"name":            fake.Food().Vegetable(),
+		"discount":        fake.Float64(2, 1, 10),
+		"brand":           fake.RandomStringElement([]string{"apple", "samsung", "xiaomi"}),
+		"sup_code":        fake.RandomStringWithLength(10),
+		"bar_code":        cast.ToString(fake.RandomNumber(10000)),
+		"image":           fake.Food().Vegetable(),
+		"wholesale_price": fake.Float64(2, 100, 1000),
+		"retail_price":    fake.Float64(2, 100, 1000),
 	}
 
 	tests := []struct {
@@ -76,6 +82,20 @@ func TestUpdateProduct(t *testing.T) {
 			args: map[string]any{
 				"discount": updatingProperties["discount"],
 				"id":       product.ID,
+			},
+		},
+		{
+			name: "update all",
+			args: map[string]any{
+				"name":            updatingProperties["name"],
+				"discount":        updatingProperties["discount"],
+				"id":              product.ID,
+				"brand":           updatingProperties["brand"],
+				"sup_code":        updatingProperties["sup_code"],
+				"bar_code":        updatingProperties["bar_code"],
+				"image":           updatingProperties["image"],
+				"wholesale_price": updatingProperties["wholesale_price"],
+				"retail_price":    updatingProperties["retail_price"],
 			},
 		},
 	}
