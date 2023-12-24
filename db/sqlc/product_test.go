@@ -77,7 +77,7 @@ func TestQueries_UpdateProduct(t *testing.T) {
 			require.NoError(t, err, "UpdateProduct() error = %v", err)
 
 			want := makeUpdateProductResp(t, &product, tt.args)
-			require.Equal(t, want, got, "UpdateProduct() got = %v, want %v", got, want)
+			require.Equal(t, &want, got, "UpdateProduct() got = %v, want %v", got, &want)
 		})
 	}
 }
