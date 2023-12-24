@@ -1,6 +1,5 @@
 -- name: CreateProduct :one
 INSERT INTO products (
-  id,
   name,
   sup_code,
   bar_code,
@@ -9,7 +8,6 @@ INSERT INTO products (
   wholesale_price,
   retail_price
 ) VALUES (
-  sqlc.arg(id),
   sqlc.arg(name),
   sqlc.arg(sup_code),
   sqlc.arg(bar_code),
