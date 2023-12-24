@@ -2,6 +2,7 @@ package db
 
 import (
 	"context"
+	"encoding/json"
 	"testing"
 
 	"github.com/spf13/cast"
@@ -51,6 +52,42 @@ func TestGetProduct(t *testing.T) {
 	require.Equal(t, product1, product2)
 }
 
-func TestUpdateProduct(t *testing.T) {
+func TestQueries_UpdateProduct(t *testing.T) {
 	product := createRandomProduct(t)
+
+	updatingProperties := map[string]any{
+		"name": fake.Food().Vegetable(),
+	}
+
+	tests := []struct {
+		name string
+		args UpdateProductParams
+	}{
+		{
+			name: "update name",
+			args: UpdateProductParams{
+				Name: updatingProperties["name"].(string),
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := testStore.UpdateProduct(context.Background(), tt.args)
+			require.NoError(t, err, "UpdateProduct() error = %v", err)
+
+			want := makeUpdateProductResp(t, &product, tt.args)
+			require.Equal(t, want, got, "UpdateProduct() got = %v, want %v", got, want)
+		})
+	}
+}
+
+func makeUpdateProductResp(t *testing.T, product *Product, args UpdateProductParams) *Product {
+	bytes, err := json.Marshal(product)
+	require.NoError(t, err)
+
+	err = json.Unmarshal(bytes, &product)
+	require.NoError(t, err)
+
+	return product
 }
