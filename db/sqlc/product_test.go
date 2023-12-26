@@ -26,6 +26,10 @@ func createRandomProduct(t *testing.T) Product {
 	require.Equal(t, arg.Name, product.Name)
 	require.Equal(t, arg.Image, product.Image)
 	require.Equal(t, arg.Brand, product.Brand)
+	require.Equal(t, arg.SupCode, product.SupCode)
+	require.Equal(t, arg.BarCode, product.BarCode)
+	require.Equal(t, arg.WholesalePrice, product.WholesalePrice)
+	require.Equal(t, arg.RetailPrice, product.RetailPrice)
 
 	require.NotZero(t, product.Name)
 	require.NotZero(t, product.CreatedAt)
@@ -49,5 +53,4 @@ func TestGetProduct(t *testing.T) {
 	require.Equal(t, product1.Name, product2.Name)
 	require.Equal(t, product1.Image, product2.Image)
 	require.Equal(t, product1.Brand, product2.Brand)
-	// require.WithinDuration(t, product1.CreatedAt, user2.CreatedAt, time.Second)
 }
