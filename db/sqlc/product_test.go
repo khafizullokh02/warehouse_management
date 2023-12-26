@@ -42,17 +42,51 @@ func TestCreateProduct(t *testing.T) {
 	createRandomProduct(t)
 }
 
-func TestGetProduct(t *testing.T) {
+func TestGetProduct(t *testing.T) { // query has been changed from: name to id
 	product1 := createRandomProduct(t)
 	product2, err := testStore.GetProduct(
 		context.Background(),
-		product1.Name,
+		product1.ID,
 	)
 	require.NoError(t, err)
 	require.NotEmpty(t, product2)
 
 	require.Equal(t, product1, product2)
 	require.WithinDuration(t, product1.CreatedAt.Time, product2.CreatedAt.Time, time.Second)
+}
+
+func TestUpdateProduct(t *testing.T) {
+	product1 := createRandomProduct(t)
+
+	arg := UpdateProductParams{
+		ID:             product1.ID,             // query has been updated from: sqlc.narg() to: sqlc.arg()
+		Name:           product1.Name,           //
+		Image:          product1.Image,          //
+		Brand:          product1.Brand,          //
+		SupCode:        product1.SupCode,        //
+		BarCode:        product1.BarCode,        //
+		WholesalePrice: product1.WholesalePrice, //
+		RetailPrice:    product1.RetailPrice,    //
+		Discount:       product1.Discount,       //
+	}
+
+	product2, err := testStore.UpdateProduct(context.Background(), arg)
+	require.NoError(t, err)
+	require.NotEmpty(t, product2)
+
+	require.Equal(t, product1, product2)
+	require.WithinDuration(t, product1.CreatedAt.Time, product2.CreatedAt.Time, time.Second) // there was an error when I wanted to do: product.CreatedAt
+}
+
+func TestDeleteProduct(t *testing.T) {
+	product1 := createRandomProduct(t)
+	err := testStore.DeleteProduct(context.Background(), product1.ID)
+	require.NoError(t, err)
+
+	product2, err := testStore.GetProduct(context.Background(), product1.ID)
+	require.Error(t, err)
+	// require.EqualError(t, err, ErrRecordNotFound.Error()) // this line didn't work because error recorder wasnot declared
+	require.Empty(t, product2)
 }
 
 func TestListAccounts(t *testing.T) {
@@ -75,27 +109,4 @@ func TestListAccounts(t *testing.T) {
 		require.NotEmpty(t, product)
 		require.Equal(t, lastProduct.Name, product.Name)
 	}
-}
-
-func TestUpdateProduct(t *testing.T) {
-	product1 := createRandomProduct(t)
-
-	arg := UpdateProductParams{
-		ID: product1.ID,//
-		Name:           product1.Name,//
-		Image:          product1.Image,//
-		Brand:          product1.Brand,//
-		SupCode:        product1.SupCode,//
-		BarCode:        product1.BarCode,//
-		WholesalePrice: product1.WholesalePrice,//
-		RetailPrice:    product1.RetailPrice,//
-		Discount:       product1.Discount,//
-	}
-
-	product2, err := testStore.UpdateProduct(context.Background(), arg)
-	require.NoError(t, err)
-	require.NotEmpty(t, product2)
-
-	require.Equal(t, product1, product2)
-	require.WithinDuration(t, product1.CreatedAt.Time, product2.CreatedAt.Time, time.Second) //
 }

@@ -80,12 +80,12 @@ func (q *Queries) DeleteProduct(ctx context.Context, id int32) error {
 const getProduct = `-- name: GetProduct :one
 SELECT id, name, sup_code, bar_code, image, brand, wholesale_price, retail_price, discount, created_at 
 FROM products
-WHERE name = $1
+WHERE id = $1
 LIMIT 1
 `
 
-func (q *Queries) GetProduct(ctx context.Context, name string) (Product, error) {
-	row := q.db.QueryRow(ctx, getProduct, name)
+func (q *Queries) GetProduct(ctx context.Context, id int32) (Product, error) {
+	row := q.db.QueryRow(ctx, getProduct, id)
 	var i Product
 	err := row.Scan(
 		&i.ID,
@@ -151,7 +151,7 @@ func (q *Queries) ListProducts(ctx context.Context, arg ListProductsParams) ([]P
 const updateProduct = `-- name: UpdateProduct :one
 UPDATE products
 SET
-name = COALESCE($1, name),
+name = COALESCE($1, name), 
 sup_code = COALESCE($2, sup_code),
 bar_code = COALESCE($3, bar_code),
 image = COALESCE($4, image),

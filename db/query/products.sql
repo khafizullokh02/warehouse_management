@@ -20,7 +20,7 @@ INSERT INTO products (
 -- name: GetProduct :one
 SELECT * 
 FROM products
-WHERE name = sqlc.arg(name)
+WHERE id = sqlc.arg(id)
 LIMIT 1;
 
 -- name: ListProducts :many
