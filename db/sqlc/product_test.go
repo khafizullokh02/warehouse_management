@@ -50,7 +50,5 @@ func TestGetProduct(t *testing.T) {
 	require.NoError(t, err)
 	require.NotEmpty(t, product2)
 
-	require.Equal(t, product1.Name, product2.Name)
-	require.Equal(t, product1.Image, product2.Image)
-	require.Equal(t, product1.Brand, product2.Brand)
+	require.Equal(t, product1, product2)
 }
