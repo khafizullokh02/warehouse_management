@@ -20,27 +20,29 @@ INSERT INTO products (
 -- name: GetProduct :one
 SELECT * 
 FROM products
-WHERE name = sqlc.arg(id) 
+WHERE name = sqlc.arg(name)
 LIMIT 1;
 
 -- name: ListProducts :many
 SELECT * 
 FROM products
-ORDER BY name
-LIMIT sqlc.arg(id)
-OFFSET sqlc.arg(name);
+WHERE name = $1
+ORDER BY id
+LIMIT $2
+OFFSET $3;
 
 -- name: UpdateProduct :one
 UPDATE products
-SET name = name = COALESCE(sqlc.narg(name), name),
-sup_code = COALESCE(sqlc.narg(sup_code), sup_code),
-bar_code = COALESCE(sqlc.narg(bar_code), bar_code),
-image = COALESCE(sqlc.narg(image), image),
-brand = COALESCE(sqlc.narg(brand), brand),
-wholesale_price = COALESCE(sqlc.narg(wholesale_price), wholesale_price),
-retail_price = COALESCE(sqlc.narg(retail_price), retail_price),
-discount = COALESCE(sqlc.narg(discount), discount),
-created_at = COALESCE(sqlc.narg(created_at), created_at)
+SET
+name = COALESCE(sqlc.arg(name), name), 
+sup_code = COALESCE(sqlc.arg(sup_code), sup_code),
+bar_code = COALESCE(sqlc.arg(bar_code), bar_code),
+image = COALESCE(sqlc.arg(image), image),
+brand = COALESCE(sqlc.arg(brand), brand),
+wholesale_price = COALESCE(sqlc.arg(wholesale_price), wholesale_price),
+retail_price = COALESCE(sqlc.arg(retail_price), retail_price),
+discount = COALESCE(sqlc.arg(discount), discount),
+created_at = COALESCE(sqlc.arg(created_at), created_at)
 WHERE id = sqlc.arg(id)
 RETURNING *;
 

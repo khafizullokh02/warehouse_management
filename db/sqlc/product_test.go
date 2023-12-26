@@ -3,6 +3,7 @@ package db
 import (
 	"context"
 	"testing"
+	"time"
 
 	"github.com/spf13/cast"
 	"github.com/stretchr/testify/require"
@@ -51,4 +52,50 @@ func TestGetProduct(t *testing.T) {
 	require.NotEmpty(t, product2)
 
 	require.Equal(t, product1, product2)
+	require.WithinDuration(t, product1.CreatedAt.Time, product2.CreatedAt.Time, time.Second)
+}
+
+func TestListAccounts(t *testing.T) {
+	var lastProduct Product
+	for i := 0; i < 10; i++ {
+		lastProduct = createRandomProduct(t)
+	}
+
+	arg := ListProductsParams{
+		Name:   lastProduct.Name,
+		Limit:  5,
+		Offset: 0,
+	}
+
+	products, err := testStore.ListProducts(context.Background(), arg)
+	require.NoError(t, err)
+	require.NotEmpty(t, products)
+
+	for _, product := range products {
+		require.NotEmpty(t, product)
+		require.Equal(t, lastProduct.Name, product.Name)
+	}
+}
+
+func TestUpdateProduct(t *testing.T) {
+	product1 := createRandomProduct(t)
+
+	arg := UpdateProductParams{
+		ID: product1.ID,//
+		Name:           product1.Name,//
+		Image:          product1.Image,//
+		Brand:          product1.Brand,//
+		SupCode:        product1.SupCode,//
+		BarCode:        product1.BarCode,//
+		WholesalePrice: product1.WholesalePrice,//
+		RetailPrice:    product1.RetailPrice,//
+		Discount:       product1.Discount,//
+	}
+
+	product2, err := testStore.UpdateProduct(context.Background(), arg)
+	require.NoError(t, err)
+	require.NotEmpty(t, product2)
+
+	require.Equal(t, product1, product2)
+	require.WithinDuration(t, product1.CreatedAt.Time, product2.CreatedAt.Time, time.Second) //
 }

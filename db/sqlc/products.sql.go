@@ -8,7 +8,7 @@ package db
 import (
 	"context"
 
-	zero "gopkg.in/guregu/null.v4/zero"
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 const createProduct = `-- name: CreateProduct :one
@@ -80,12 +80,12 @@ func (q *Queries) DeleteProduct(ctx context.Context, id int32) error {
 const getProduct = `-- name: GetProduct :one
 SELECT id, name, sup_code, bar_code, image, brand, wholesale_price, retail_price, discount, created_at 
 FROM products
-WHERE name = $1 
+WHERE name = $1
 LIMIT 1
 `
 
-func (q *Queries) GetProduct(ctx context.Context, id string) (Product, error) {
-	row := q.db.QueryRow(ctx, getProduct, id)
+func (q *Queries) GetProduct(ctx context.Context, name string) (Product, error) {
+	row := q.db.QueryRow(ctx, getProduct, name)
 	var i Product
 	err := row.Scan(
 		&i.ID,
@@ -105,18 +105,20 @@ func (q *Queries) GetProduct(ctx context.Context, id string) (Product, error) {
 const listProducts = `-- name: ListProducts :many
 SELECT id, name, sup_code, bar_code, image, brand, wholesale_price, retail_price, discount, created_at 
 FROM products
-ORDER BY name
+WHERE name = $1
+ORDER BY id
 LIMIT $2
-OFFSET $1
+OFFSET $3
 `
 
 type ListProductsParams struct {
-	Name int32 `json:"name"`
-	ID   int32 `json:"id"`
+	Name   string `json:"name"`
+	Limit  int32  `json:"limit"`
+	Offset int32  `json:"offset"`
 }
 
 func (q *Queries) ListProducts(ctx context.Context, arg ListProductsParams) ([]Product, error) {
-	rows, err := q.db.Query(ctx, listProducts, arg.Name, arg.ID)
+	rows, err := q.db.Query(ctx, listProducts, arg.Name, arg.Limit, arg.Offset)
 	if err != nil {
 		return nil, err
 	}
@@ -148,7 +150,8 @@ func (q *Queries) ListProducts(ctx context.Context, arg ListProductsParams) ([]P
 
 const updateProduct = `-- name: UpdateProduct :one
 UPDATE products
-SET name = name = COALESCE($1, name),
+SET
+name = COALESCE($1, name),
 sup_code = COALESCE($2, sup_code),
 bar_code = COALESCE($3, bar_code),
 image = COALESCE($4, image),
@@ -162,16 +165,16 @@ RETURNING id, name, sup_code, bar_code, image, brand, wholesale_price, retail_pr
 `
 
 type UpdateProductParams struct {
-	Name           zero.String `json:"name"`
-	SupCode        zero.String `json:"sup_code"`
-	BarCode        zero.String `json:"bar_code"`
-	Image          zero.String `json:"image"`
-	Brand          zero.String `json:"brand"`
-	WholesalePrice zero.Float  `json:"wholesale_price"`
-	RetailPrice    zero.Float  `json:"retail_price"`
-	Discount       zero.Float  `json:"discount"`
-	CreatedAt      zero.Time   `json:"created_at"`
-	ID             int32       `json:"id"`
+	Name           string           `json:"name"`
+	SupCode        string           `json:"sup_code"`
+	BarCode        string           `json:"bar_code"`
+	Image          string           `json:"image"`
+	Brand          string           `json:"brand"`
+	WholesalePrice float64          `json:"wholesale_price"`
+	RetailPrice    float64          `json:"retail_price"`
+	Discount       float64          `json:"discount"`
+	CreatedAt      pgtype.Timestamp `json:"created_at"`
+	ID             int32            `json:"id"`
 }
 
 func (q *Queries) UpdateProduct(ctx context.Context, arg UpdateProductParams) (Product, error) {
