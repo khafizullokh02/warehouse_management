@@ -4,15 +4,19 @@ import (
 	"context"
 	"testing"
 
+	"github.com/spf13/cast"
 	"github.com/stretchr/testify/require"
 )
 
 func createRandomProduct(t *testing.T) Product {
 	arg := CreateProductParams{
-		Name:  fake.Food().Vegetable(),
-		Image: fake.Food().Vegetable(),
-		Brand: fake.RandomStringElement([]string{"apple", "samsung", "xiaomi"}),
-		
+		Name:           fake.Food().Vegetable(),
+		Image:          fake.Food().Vegetable(),
+		Brand:          fake.RandomStringElement([]string{"apple", "samsung", "xiaomi"}),
+		SupCode:        fake.RandomStringWithLength(10),
+		BarCode:        cast.ToString(fake.RandomNumber(10000)),
+		WholesalePrice: fake.Float64(2, 100, 1000),
+		RetailPrice:    fake.Float64(2, 100, 1000),
 	}
 
 	product, err := testStore.CreateProduct(context.Background(), arg)
