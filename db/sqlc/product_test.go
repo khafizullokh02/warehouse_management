@@ -12,6 +12,7 @@ func createRandomProduct(t *testing.T) Product {
 		Name:  fake.Food().Vegetable(),
 		Image: fake.Food().Vegetable(),
 		Brand: fake.RandomStringElement([]string{"apple", "samsung", "xiaomi"}),
+		
 	}
 
 	product, err := testStore.CreateProduct(context.Background(), arg)

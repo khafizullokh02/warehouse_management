@@ -7,11 +7,12 @@ package db
 
 import (
 	"context"
+
+	zero "gopkg.in/guregu/null.v4/zero"
 )
 
 const createProduct = `-- name: CreateProduct :one
 INSERT INTO products (
-  id,
   name,
   sup_code,
   bar_code,
@@ -26,13 +27,11 @@ INSERT INTO products (
   $4,
   $5,
   $6,
-  $7,
-  $8
+  $7
 ) RETURNING id, name, sup_code, bar_code, image, brand, wholesale_price, retail_price, discount, created_at
 `
 
 type CreateProductParams struct {
-	ID             int32   `json:"id"`
 	Name           string  `json:"name"`
 	SupCode        string  `json:"sup_code"`
 	BarCode        string  `json:"bar_code"`
@@ -44,7 +43,6 @@ type CreateProductParams struct {
 
 func (q *Queries) CreateProduct(ctx context.Context, arg CreateProductParams) (Product, error) {
 	row := q.db.QueryRow(ctx, createProduct,
-		arg.ID,
 		arg.Name,
 		arg.SupCode,
 		arg.BarCode,
@@ -150,18 +148,45 @@ func (q *Queries) ListProducts(ctx context.Context, arg ListProductsParams) ([]P
 
 const updateProduct = `-- name: UpdateProduct :one
 UPDATE products
-SET name = $1
-WHERE id = $2
+SET name = name = COALESCE($1, name),
+sup_code = COALESCE($2, sup_code),
+bar_code = COALESCE($3, bar_code),
+image = COALESCE($4, image),
+brand = COALESCE($5, brand),
+wholesale_price = COALESCE($6, wholesale_price),
+retail_price = COALESCE($7, retail_price),
+discount = COALESCE($8, discount),
+created_at = COALESCE($9, created_at)
+WHERE id = $10
 RETURNING id, name, sup_code, bar_code, image, brand, wholesale_price, retail_price, discount, created_at
 `
 
 type UpdateProductParams struct {
-	Name string `json:"name"`
-	ID   int32  `json:"id"`
+	Name           zero.String `json:"name"`
+	SupCode        zero.String `json:"sup_code"`
+	BarCode        zero.String `json:"bar_code"`
+	Image          zero.String `json:"image"`
+	Brand          zero.String `json:"brand"`
+	WholesalePrice zero.Float  `json:"wholesale_price"`
+	RetailPrice    zero.Float  `json:"retail_price"`
+	Discount       zero.Float  `json:"discount"`
+	CreatedAt      zero.Time   `json:"created_at"`
+	ID             int32       `json:"id"`
 }
 
 func (q *Queries) UpdateProduct(ctx context.Context, arg UpdateProductParams) (Product, error) {
-	row := q.db.QueryRow(ctx, updateProduct, arg.Name, arg.ID)
+	row := q.db.QueryRow(ctx, updateProduct,
+		arg.Name,
+		arg.SupCode,
+		arg.BarCode,
+		arg.Image,
+		arg.Brand,
+		arg.WholesalePrice,
+		arg.RetailPrice,
+		arg.Discount,
+		arg.CreatedAt,
+		arg.ID,
+	)
 	var i Product
 	err := row.Scan(
 		&i.ID,

@@ -1,6 +1,5 @@
 -- name: CreateProduct :one
 INSERT INTO products (
-  id,
   name,
   sup_code,
   bar_code,
@@ -9,7 +8,6 @@ INSERT INTO products (
   wholesale_price,
   retail_price
 ) VALUES (
-  sqlc.arg(id),
   sqlc.arg(name),
   sqlc.arg(sup_code),
   sqlc.arg(bar_code),
@@ -34,7 +32,15 @@ OFFSET sqlc.arg(name);
 
 -- name: UpdateProduct :one
 UPDATE products
-SET name = sqlc.arg(name)
+SET name = name = COALESCE(sqlc.narg(name), name),
+sup_code = COALESCE(sqlc.narg(sup_code), sup_code),
+bar_code = COALESCE(sqlc.narg(bar_code), bar_code),
+image = COALESCE(sqlc.narg(image), image),
+brand = COALESCE(sqlc.narg(brand), brand),
+wholesale_price = COALESCE(sqlc.narg(wholesale_price), wholesale_price),
+retail_price = COALESCE(sqlc.narg(retail_price), retail_price),
+discount = COALESCE(sqlc.narg(discount), discount),
+created_at = COALESCE(sqlc.narg(created_at), created_at)
 WHERE id = sqlc.arg(id)
 RETURNING *;
 
