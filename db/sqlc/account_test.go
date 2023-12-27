@@ -1,7 +1,4 @@
 package db
 
-import "testing"
-
-func createRandomAccount(t *testing.T) {
-
-}
+// func createRandomAccount(t *testing.T) Account {
+// }
