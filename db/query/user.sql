@@ -12,7 +12,7 @@ INSERT INTO users (
 -- name: GetUser :one
 SELECT * 
 FROM users
-WHERE id = sqlc.arg(id) 
+WHERE name = sqlc.arg(name) 
 LIMIT 1;
 
 -- name: ListUsers :many
