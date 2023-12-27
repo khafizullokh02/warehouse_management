@@ -7,6 +7,9 @@ package db
 
 import (
 	"context"
+
+	"github.com/jackc/pgx/v5/pgtype"
+	zero "gopkg.in/guregu/null.v4/zero"
 )
 
 const createUser = `-- name: CreateUser :one
@@ -55,12 +58,12 @@ func (q *Queries) DeleteUser(ctx context.Context, id int32) error {
 const getUser = `-- name: GetUser :one
 SELECT id, name, email, password, created_at, updated_at, deleted_at 
 FROM users
-WHERE name = $1 
+WHERE id = $1 
 LIMIT 1
 `
 
-func (q *Queries) GetUser(ctx context.Context, name string) (User, error) {
-	row := q.db.QueryRow(ctx, getUser, name)
+func (q *Queries) GetUser(ctx context.Context, id int32) (User, error) {
+	row := q.db.QueryRow(ctx, getUser, id)
 	var i User
 	err := row.Scan(
 		&i.ID,
@@ -77,18 +80,20 @@ func (q *Queries) GetUser(ctx context.Context, name string) (User, error) {
 const listUsers = `-- name: ListUsers :many
 SELECT id, name, email, password, created_at, updated_at, deleted_at 
 FROM users
+WHere name = $1
 ORDER BY id
 LIMIT $2
-OFFSET $1
+OFFSET $3
 `
 
 type ListUsersParams struct {
-	Name int32 `json:"name"`
-	ID   int32 `json:"id"`
+	Name   string `json:"name"`
+	Limit  int32  `json:"limit"`
+	Offset int32  `json:"offset"`
 }
 
 func (q *Queries) ListUsers(ctx context.Context, arg ListUsersParams) ([]User, error) {
-	rows, err := q.db.Query(ctx, listUsers, arg.Name, arg.ID)
+	rows, err := q.db.Query(ctx, listUsers, arg.Name, arg.Limit, arg.Offset)
 	if err != nil {
 		return nil, err
 	}
@@ -117,18 +122,37 @@ func (q *Queries) ListUsers(ctx context.Context, arg ListUsersParams) ([]User, e
 
 const updateUser = `-- name: UpdateUser :one
 UPDATE users
-SET email = $1
-WHERE id = $2
+SET
+name = COALESCE($1, name),
+email = COALESCE($2, email),
+password = COALESCE($3, password),
+created_at = COALESCE($4, created_at),
+updated_at = COALESCE($5, updated_at),
+deleted_at = COALESCE($6, deleted_at)
+WHERE id = $7
 RETURNING id, name, email, password, created_at, updated_at, deleted_at
 `
 
 type UpdateUserParams struct {
-	Email string `json:"email"`
-	ID    int32  `json:"id"`
+	Name      string           `json:"name"`
+	Email     string           `json:"email"`
+	Password  string           `json:"password"`
+	CreatedAt pgtype.Timestamp `json:"created_at"`
+	UpdatedAt pgtype.Timestamp `json:"updated_at"`
+	DeletedAt zero.Time        `json:"deleted_at"`
+	ID        int32            `json:"id"`
 }
 
 func (q *Queries) UpdateUser(ctx context.Context, arg UpdateUserParams) (User, error) {
-	row := q.db.QueryRow(ctx, updateUser, arg.Email, arg.ID)
+	row := q.db.QueryRow(ctx, updateUser,
+		arg.Name,
+		arg.Email,
+		arg.Password,
+		arg.CreatedAt,
+		arg.UpdatedAt,
+		arg.DeletedAt,
+		arg.ID,
+	)
 	var i User
 	err := row.Scan(
 		&i.ID,

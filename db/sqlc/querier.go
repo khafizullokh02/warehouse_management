@@ -26,7 +26,7 @@ type Querier interface {
 	GetEntryGroup(ctx context.Context, id int32) (EntryGroup, error)
 	GetEntryItems(ctx context.Context, id int32) (EntryItem, error)
 	GetProduct(ctx context.Context, id int32) (Product, error)
-	GetUser(ctx context.Context, name string) (User, error)
+	GetUser(ctx context.Context, id int32) (User, error)
 	ListAccounts(ctx context.Context, arg ListAccountsParams) ([]Account, error)
 	ListAgreementForms(ctx context.Context, arg ListAgreementFormsParams) ([]AgreementForm, error)
 	ListEntryGroups(ctx context.Context, arg ListEntryGroupsParams) ([]EntryGroup, error)

@@ -89,7 +89,7 @@ func TestDeleteProduct(t *testing.T) {
 	require.Empty(t, product2)
 }
 
-func TestListAccounts(t *testing.T) {
+func TestListProducts(t *testing.T) {
 	var lastProduct Product
 	for i := 0; i < 10; i++ {
 		lastProduct = createRandomProduct(t)
