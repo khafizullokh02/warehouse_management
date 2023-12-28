@@ -238,9 +238,10 @@ func (ns NullPricingType) Value() (driver.Value, error) {
 }
 
 type Account struct {
-	ID     int32  `json:"id"`
-	UserID int32  `json:"user_id"`
-	Name   string `json:"name"`
+	ID        int32            `json:"id"`
+	UserID    int32            `json:"user_id"`
+	Name      string           `json:"name"`
+	CreatedAt pgtype.Timestamp `json:"created_at"`
 }
 
 type AgreementForm struct {

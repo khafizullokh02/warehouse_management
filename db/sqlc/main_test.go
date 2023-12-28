@@ -17,7 +17,6 @@ const (
 	dbSource = "postgres://root:secret@localhost:5432/warehouse_management?sslmode=disable"
 )
 
-
 func TestMain(m *testing.M) {
 	fake = faker.New()
 	testStore = NewStore(context.Background(), dbSource)

@@ -51,7 +51,8 @@ CREATE TABLE "users" (
 CREATE TABLE "accounts" (
   "id" serial PRIMARY KEY,
   "user_id" integer NOT NULL,
-  "name" varchar NOT NULL
+  "name" varchar NOT NULL,
+  "created_at" timestamp NOT NULL DEFAULT (now())
 );
 
 CREATE TABLE "products" (

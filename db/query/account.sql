@@ -1,10 +1,8 @@
 -- name: CreateAccount :one
 INSERT INTO accounts (
-  id,
   user_id,
   name
 ) VALUES (
-  sqlc.arg(id),
   sqlc.arg(user_id),
   sqlc.arg(name)
 ) RETURNING *;
@@ -12,18 +10,23 @@ INSERT INTO accounts (
 -- name: GetAccount :one
 SELECT * 
 FROM accounts
-WHERE id = sqlc.arg(id) LIMIT 1;
+WHERE id = sqlc.arg(id)
+LIMIT 1;
 
 -- name: ListAccounts :many
 SELECT * 
 FROM accounts
+WHERE name = $1
 ORDER BY id
-LIMIT sqlc.arg(id)
-OFFSET sqlc.arg(user_id);
+LIMIT $2
+OFFSET $3;
 
 -- name: UpdateAccount :one
 UPDATE accounts
-SET name = sqlc.arg(name)
+SET 
+name = COALESCE(sqlc.arg(name), name),
+user_id = COALESCE(sqlc.arg(user_id), user_id),
+created_at = COALESCE(sqlc.arg(created_at), created_at)
 WHERE id = sqlc.arg(id)
 RETURNING *;
 
