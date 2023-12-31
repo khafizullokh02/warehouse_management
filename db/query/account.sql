@@ -12,9 +12,8 @@ LIMIT 1;
 -- name: ListAccounts :many
 SELECT *
 FROM accounts
-WHERE name = $1
-ORDER BY id
-LIMIT $2 OFFSET $3;
+ORDER BY id DESC
+LIMIT $1 OFFSET $2;
 
 -- name: UpdateAccount :one
 UPDATE accounts
