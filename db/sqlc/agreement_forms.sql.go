@@ -11,18 +11,20 @@ import (
 
 const createAgreementForms = `-- name: CreateAgreementForms :one
 INSERT INTO agreement_forms (
-  id,
-  from_account,
-  to_account,
-  product_ids,
-  action_type_for_agreement
-) VALUES (
-  $1,
-  $2,
-  $3,
-  $4,
-  $5
-) RETURNING id, from_account, to_account, product_ids, action_type_for_agreement, wholesale_price, retail_price
+    id,
+    from_account,
+    to_account,
+    product_ids,
+    action_type_for_agreement
+  )
+VALUES (
+    $1,
+    $2,
+    $3,
+    $4,
+    $5
+  )
+RETURNING id, from_account, to_account, product_ids, action_type_for_agreement, wholesale_price, retail_price
 `
 
 type CreateAgreementFormsParams struct {
@@ -65,9 +67,9 @@ func (q *Queries) DeleteAgreementForm(ctx context.Context, id int32) error {
 }
 
 const getAgreementForm = `-- name: GetAgreementForm :one
-SELECT id, from_account, to_account, product_ids, action_type_for_agreement, wholesale_price, retail_price 
+SELECT id, from_account, to_account, product_ids, action_type_for_agreement, wholesale_price, retail_price
 FROM agreement_forms
-WHERE id = $1 
+WHERE id = $1
 LIMIT 1
 `
 
@@ -87,20 +89,19 @@ func (q *Queries) GetAgreementForm(ctx context.Context, id int32) (AgreementForm
 }
 
 const listAgreementForms = `-- name: ListAgreementForms :many
-SELECT id, from_account, to_account, product_ids, action_type_for_agreement, wholesale_price, retail_price 
+SELECT id, from_account, to_account, product_ids, action_type_for_agreement, wholesale_price, retail_price
 FROM agreement_forms
-ORDER BY id
-LIMIT $2
-OFFSET $1
+ORDER BY id DESC
+LIMIT $2 OFFSET $1
 `
 
 type ListAgreementFormsParams struct {
-	FromAccount int32 `json:"from_account"`
-	ID          int32 `json:"id"`
+	Offset int32 `json:"offset"`
+	Limit  int32 `json:"limit"`
 }
 
 func (q *Queries) ListAgreementForms(ctx context.Context, arg ListAgreementFormsParams) ([]AgreementForm, error) {
-	rows, err := q.db.Query(ctx, listAgreementForms, arg.FromAccount, arg.ID)
+	rows, err := q.db.Query(ctx, listAgreementForms, arg.Offset, arg.Limit)
 	if err != nil {
 		return nil, err
 	}
