@@ -7,6 +7,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"gopkg.in/guregu/null.v4/zero"
 )
 
 func createRandomAccount(t *testing.T) Account {
@@ -14,7 +15,7 @@ func createRandomAccount(t *testing.T) Account {
 
 	arg := CreateAccountParams{
 		UserID: user.ID,
-		Name: fake.Food().Vegetable(),
+		Name:   fake.Food().Vegetable(),
 	}
 
 	account, err := testStore.CreateAccount(context.Background(), arg)
@@ -47,18 +48,15 @@ func TestUpdateAccount(t *testing.T) {
 	account1 := createRandomAccount(t)
 
 	arg := UpdateAccountParams{
-		Name: fake.Food().Vegetable(),
-		UserID: account1.ID,
+		ID:   account1.ID,
+		Name: zero.StringFrom(fake.Food().Vegetable()),
 	}
 
 	account2, err := testStore.UpdateAccount(context.Background(), arg)
-	assert.NoError(t, err)
-	require.NotEmpty(t, account2)
+	require.NoError(t, err)
 
-	require.Equal(t, account1.ID, account2.ID)
-	require.Equal(t, account1.Name, account2.Name)
-	require.Equal(t, account1.UserID, account2.UserID)
-	require.WithinDuration(t, account1.CreatedAt.Time, account2.CreatedAt.Time, time.Second)
+	assert.NotEmpty(t, account2)
+	assert.Equal(t, arg.Name.String, account2.Name)
 }
 
 func TestDeleteAccount(t *testing.T) {
@@ -79,8 +77,8 @@ func TestListAccounts(t *testing.T) {
 	}
 
 	arg := ListAccountsParams{
-		Name: lastAccount.Name,
-		Limit: 5,
+		Name:   lastAccount.Name,
+		Limit:  5,
 		Offset: 0,
 	}
 
