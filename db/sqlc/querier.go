@@ -16,25 +16,21 @@ type Querier interface {
 	CreateProduct(ctx context.Context, arg CreateProductParams) (Product, error)
 	CreateUser(ctx context.Context, arg CreateUserParams) (User, error)
 	DeleteAccount(ctx context.Context, id int32) error
-	DeleteAgreementForm(ctx context.Context, id int32) error
 	DeleteEntryGroup(ctx context.Context, id int32) error
 	DeleteEntryItems(ctx context.Context, id int32) error
 	DeleteProduct(ctx context.Context, id int32) error
 	DeleteUser(ctx context.Context, id int32) error
 	GetAccount(ctx context.Context, id int32) (Account, error)
-	GetAgreementForm(ctx context.Context, id int32) (AgreementForm, error)
 	GetEntryGroup(ctx context.Context, id int32) (EntryGroup, error)
 	GetEntryItems(ctx context.Context, id int32) (EntryItem, error)
 	GetProduct(ctx context.Context, id int32) (Product, error)
 	GetUser(ctx context.Context, id int32) (User, error)
 	ListAccounts(ctx context.Context, arg ListAccountsParams) ([]Account, error)
-	ListAgreementForms(ctx context.Context, arg ListAgreementFormsParams) ([]AgreementForm, error)
 	ListEntryGroups(ctx context.Context, arg ListEntryGroupsParams) ([]EntryGroup, error)
 	ListEntryItems(ctx context.Context, arg ListEntryItemsParams) ([]EntryItem, error)
 	ListProducts(ctx context.Context, arg ListProductsParams) ([]Product, error)
 	ListUsers(ctx context.Context, arg ListUsersParams) ([]User, error)
 	UpdateAccount(ctx context.Context, arg UpdateAccountParams) (Account, error)
-	UpdateAgreementForm(ctx context.Context, arg UpdateAgreementFormParams) (AgreementForm, error)
 	UpdateEntryGroup(ctx context.Context, arg UpdateEntryGroupParams) (EntryGroup, error)
 	UpdateEntryItems(ctx context.Context, arg UpdateEntryItemsParams) (EntryItem, error)
 	UpdateProduct(ctx context.Context, arg UpdateProductParams) (Product, error)
