@@ -65,9 +65,9 @@ func TestDeleteAccount(t *testing.T) {
 	assert.NoError(t, err)
 
 	account2, err := testStore.GetAccount(context.Background(), account1.ID)
-	assert.NoError(t, err)
-	require.EqualError(t, err, ErrRecordNotFound.Error())
-	require.Empty(t, account2)
+	require.Error(t, err)
+	assert.EqualError(t, err, ErrRecordNotFound.Error())
+	assert.Empty(t, account2)
 }
 
 func TestListAccounts(t *testing.T) {
