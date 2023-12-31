@@ -6,7 +6,7 @@ INSERT INTO entry_group (
   pricing_type,
   price,
   currency,
-  entry_groups_status
+  entry_group_status
 ) VALUES (
   sqlc.arg(id),
   sqlc.arg(quantity),
@@ -14,7 +14,7 @@ INSERT INTO entry_group (
   sqlc.arg(pricing_type),
   sqlc.arg(price),
   sqlc.arg(currency),
-  sqlc.arg(entry_groups_status)
+  sqlc.arg(entry_group_status)
 ) RETURNING *;
 
 -- name: GetEntryGroup :one
@@ -26,9 +26,10 @@ LIMIT 1;
 -- name: ListEntryGroups :many
 SELECT * 
 FROM entry_group
+WHERE id = $1
 ORDER BY id
-LIMIT sqlc.arg(id)
-OFFSET sqlc.arg(quantity);
+LIMIT $2
+OFFSET $3;
 
 -- name: UpdateEntryGroup :one
 UPDATE entry_group

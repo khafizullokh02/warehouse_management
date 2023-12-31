@@ -17,7 +17,7 @@ INSERT INTO entry_group (
   pricing_type,
   price,
   currency,
-  entry_groups_status
+  entry_group_status
 ) VALUES (
   $1,
   $2,
@@ -26,17 +26,17 @@ INSERT INTO entry_group (
   $5,
   $6,
   $7
-) RETURNING id, quantity, action_type, pricing_type, price, currency, entry_groups_status, created_at, updated_at, deleted_at
+) RETURNING id, quantity, action_type, pricing_type, price, currency, entry_group_status, created_at, updated_at, deleted_at
 `
 
 type CreateEntryGroupParams struct {
-	ID                int32             `json:"id"`
-	Quantity          int32             `json:"quantity"`
-	ActionType        ActionType        `json:"action_type"`
-	PricingType       PricingType       `json:"pricing_type"`
-	Price             float64           `json:"price"`
-	Currency          CurrencyCode      `json:"currency"`
-	EntryGroupsStatus EntryGroupsStatus `json:"entry_groups_status"`
+	ID               int32            `json:"id"`
+	Quantity         int32            `json:"quantity"`
+	ActionType       ActionType       `json:"action_type"`
+	PricingType      PricingType      `json:"pricing_type"`
+	Price            float64          `json:"price"`
+	Currency         CurrencyCode     `json:"currency"`
+	EntryGroupStatus EntryGroupStatus `json:"entry_group_status"`
 }
 
 func (q *Queries) CreateEntryGroup(ctx context.Context, arg CreateEntryGroupParams) (EntryGroup, error) {
@@ -47,7 +47,7 @@ func (q *Queries) CreateEntryGroup(ctx context.Context, arg CreateEntryGroupPara
 		arg.PricingType,
 		arg.Price,
 		arg.Currency,
-		arg.EntryGroupsStatus,
+		arg.EntryGroupStatus,
 	)
 	var i EntryGroup
 	err := row.Scan(
@@ -57,7 +57,7 @@ func (q *Queries) CreateEntryGroup(ctx context.Context, arg CreateEntryGroupPara
 		&i.PricingType,
 		&i.Price,
 		&i.Currency,
-		&i.EntryGroupsStatus,
+		&i.EntryGroupStatus,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 		&i.DeletedAt,
@@ -76,7 +76,7 @@ func (q *Queries) DeleteEntryGroup(ctx context.Context, id int32) error {
 }
 
 const getEntryGroup = `-- name: GetEntryGroup :one
-SELECT id, quantity, action_type, pricing_type, price, currency, entry_groups_status, created_at, updated_at, deleted_at 
+SELECT id, quantity, action_type, pricing_type, price, currency, entry_group_status, created_at, updated_at, deleted_at 
 FROM entry_group
 WHERE id = $1
 LIMIT 1
@@ -92,7 +92,7 @@ func (q *Queries) GetEntryGroup(ctx context.Context, id int32) (EntryGroup, erro
 		&i.PricingType,
 		&i.Price,
 		&i.Currency,
-		&i.EntryGroupsStatus,
+		&i.EntryGroupStatus,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 		&i.DeletedAt,
@@ -101,20 +101,22 @@ func (q *Queries) GetEntryGroup(ctx context.Context, id int32) (EntryGroup, erro
 }
 
 const listEntryGroups = `-- name: ListEntryGroups :many
-SELECT id, quantity, action_type, pricing_type, price, currency, entry_groups_status, created_at, updated_at, deleted_at 
+SELECT id, quantity, action_type, pricing_type, price, currency, entry_group_status, created_at, updated_at, deleted_at 
 FROM entry_group
+WHERE id = $1
 ORDER BY id
 LIMIT $2
-OFFSET $1
+OFFSET $3
 `
 
 type ListEntryGroupsParams struct {
-	Quantity int32 `json:"quantity"`
-	ID       int32 `json:"id"`
+	ID     int32 `json:"id"`
+	Limit  int32 `json:"limit"`
+	Offset int32 `json:"offset"`
 }
 
 func (q *Queries) ListEntryGroups(ctx context.Context, arg ListEntryGroupsParams) ([]EntryGroup, error) {
-	rows, err := q.db.Query(ctx, listEntryGroups, arg.Quantity, arg.ID)
+	rows, err := q.db.Query(ctx, listEntryGroups, arg.ID, arg.Limit, arg.Offset)
 	if err != nil {
 		return nil, err
 	}
@@ -129,7 +131,7 @@ func (q *Queries) ListEntryGroups(ctx context.Context, arg ListEntryGroupsParams
 			&i.PricingType,
 			&i.Price,
 			&i.Currency,
-			&i.EntryGroupsStatus,
+			&i.EntryGroupStatus,
 			&i.CreatedAt,
 			&i.UpdatedAt,
 			&i.DeletedAt,
@@ -148,7 +150,7 @@ const updateEntryGroup = `-- name: UpdateEntryGroup :one
 UPDATE entry_group
 SET price = $1
 WHERE id = $2
-RETURNING id, quantity, action_type, pricing_type, price, currency, entry_groups_status, created_at, updated_at, deleted_at
+RETURNING id, quantity, action_type, pricing_type, price, currency, entry_group_status, created_at, updated_at, deleted_at
 `
 
 type UpdateEntryGroupParams struct {
@@ -166,7 +168,7 @@ func (q *Queries) UpdateEntryGroup(ctx context.Context, arg UpdateEntryGroupPara
 		&i.PricingType,
 		&i.Price,
 		&i.Currency,
-		&i.EntryGroupsStatus,
+		&i.EntryGroupStatus,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 		&i.DeletedAt,
