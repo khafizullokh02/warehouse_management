@@ -8,17 +8,13 @@ package db
 import (
 	"context"
 
-	"github.com/jackc/pgx/v5/pgtype"
+	zero "gopkg.in/guregu/null.v4/zero"
 )
 
 const createAccount = `-- name: CreateAccount :one
-INSERT INTO accounts (
-  user_id,
-  name
-) VALUES (
-  $1,
-  $2
-) RETURNING id, user_id, name, created_at
+INSERT INTO accounts (user_id, name)
+VALUES ($1, $2)
+RETURNING id, user_id, name, created_at
 `
 
 type CreateAccountParams struct {
@@ -49,7 +45,7 @@ func (q *Queries) DeleteAccount(ctx context.Context, id int32) error {
 }
 
 const getAccount = `-- name: GetAccount :one
-SELECT id, user_id, name, created_at 
+SELECT id, user_id, name, created_at
 FROM accounts
 WHERE id = $1
 LIMIT 1
@@ -68,12 +64,11 @@ func (q *Queries) GetAccount(ctx context.Context, id int32) (Account, error) {
 }
 
 const listAccounts = `-- name: ListAccounts :many
-SELECT id, user_id, name, created_at 
+SELECT id, user_id, name, created_at
 FROM accounts
 WHERE name = $1
 ORDER BY id
-LIMIT $2
-OFFSET $3
+LIMIT $2 OFFSET $3
 `
 
 type ListAccountsParams struct {
@@ -109,28 +104,18 @@ func (q *Queries) ListAccounts(ctx context.Context, arg ListAccountsParams) ([]A
 
 const updateAccount = `-- name: UpdateAccount :one
 UPDATE accounts
-SET 
-name = COALESCE($1, name),
-user_id = COALESCE($2, user_id),
-created_at = COALESCE($3, created_at)
-WHERE id = $4
+SET name = COALESCE($1, name)
+WHERE id = $2
 RETURNING id, user_id, name, created_at
 `
 
 type UpdateAccountParams struct {
-	Name      string           `json:"name"`
-	UserID    int32            `json:"user_id"`
-	CreatedAt pgtype.Timestamp `json:"created_at"`
-	ID        int32            `json:"id"`
+	Name zero.String `json:"name"`
+	ID   int32       `json:"id"`
 }
 
 func (q *Queries) UpdateAccount(ctx context.Context, arg UpdateAccountParams) (Account, error) {
-	row := q.db.QueryRow(ctx, updateAccount,
-		arg.Name,
-		arg.UserID,
-		arg.CreatedAt,
-		arg.ID,
-	)
+	row := q.db.QueryRow(ctx, updateAccount, arg.Name, arg.ID)
 	var i Account
 	err := row.Scan(
 		&i.ID,
