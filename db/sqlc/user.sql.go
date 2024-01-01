@@ -80,7 +80,7 @@ func (q *Queries) GetUser(ctx context.Context, id int32) (User, error) {
 const listUsers = `-- name: ListUsers :many
 SELECT id, name, email, password, created_at, updated_at, deleted_at 
 FROM users
-WHere name = $1
+WHERE name = $1
 ORDER BY id
 LIMIT $2
 OFFSET $3

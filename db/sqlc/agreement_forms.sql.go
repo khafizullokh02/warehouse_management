@@ -9,7 +9,7 @@ import (
 	"context"
 )
 
-const createAgreementForms = `-- name: CreateAgreementForms :one
+const createAgreementForm = `-- name: CreateAgreementForm :one
 INSERT INTO agreement_forms (
     from_account,
     to_account,
@@ -29,7 +29,7 @@ VALUES (
 RETURNING id, from_account, to_account, product_ids, action_type_for_agreement, wholesale_price, retail_price
 `
 
-type CreateAgreementFormsParams struct {
+type CreateAgreementFormParams struct {
 	FromAccount            int32      `json:"from_account"`
 	ToAccount              int32      `json:"to_account"`
 	ProductIds             []int32    `json:"product_ids"`
@@ -38,14 +38,137 @@ type CreateAgreementFormsParams struct {
 	RetailPrice            float64    `json:"retail_price"`
 }
 
-func (q *Queries) CreateAgreementForms(ctx context.Context, arg CreateAgreementFormsParams) (AgreementForm, error) {
-	row := q.db.QueryRow(ctx, createAgreementForms,
+func (q *Queries) CreateAgreementForm(ctx context.Context, arg CreateAgreementFormParams) (AgreementForm, error) {
+	row := q.db.QueryRow(ctx, createAgreementForm,
 		arg.FromAccount,
 		arg.ToAccount,
 		arg.ProductIds,
 		arg.ActionTypeForAgreement,
 		arg.WholesalePrice,
 		arg.RetailPrice,
+	)
+	var i AgreementForm
+	err := row.Scan(
+		&i.ID,
+		&i.FromAccount,
+		&i.ToAccount,
+		&i.ProductIds,
+		&i.ActionTypeForAgreement,
+		&i.WholesalePrice,
+		&i.RetailPrice,
+	)
+	return i, err
+}
+
+const deleteAgreementForm = `-- name: DeleteAgreementForm :exec
+DELETE FROM agreement_forms
+WHERE id = $1
+`
+
+func (q *Queries) DeleteAgreementForm(ctx context.Context, id int32) error {
+	_, err := q.db.Exec(ctx, deleteAgreementForm, id)
+	return err
+}
+
+const getAgreementForm = `-- name: GetAgreementForm :one
+SELECT id, from_account, to_account, product_ids, action_type_for_agreement, wholesale_price, retail_price
+FROM agreement_forms
+WHERE id = $1
+LIMIT 1
+`
+
+func (q *Queries) GetAgreementForm(ctx context.Context, id int32) (AgreementForm, error) {
+	row := q.db.QueryRow(ctx, getAgreementForm, id)
+	var i AgreementForm
+	err := row.Scan(
+		&i.ID,
+		&i.FromAccount,
+		&i.ToAccount,
+		&i.ProductIds,
+		&i.ActionTypeForAgreement,
+		&i.WholesalePrice,
+		&i.RetailPrice,
+	)
+	return i, err
+}
+
+const listAgreementForms = `-- name: ListAgreementForms :many
+SELECT id, from_account, to_account, product_ids, action_type_for_agreement, wholesale_price, retail_price
+FROM agreement_forms
+WHERE 
+    from_account = $1 OR
+    to_account = $2
+ORDER BY id DESC
+LIMIT $4
+OFFSET $3
+`
+
+type ListAgreementFormsParams struct {
+	FromAccount int32 `json:"from_account"`
+	ToAccount   int32 `json:"to_account"`
+	Offset      int32 `json:"offset"`
+	Limit       int32 `json:"limit"`
+}
+
+func (q *Queries) ListAgreementForms(ctx context.Context, arg ListAgreementFormsParams) ([]AgreementForm, error) {
+	rows, err := q.db.Query(ctx, listAgreementForms,
+		arg.FromAccount,
+		arg.ToAccount,
+		arg.Offset,
+		arg.Limit,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []AgreementForm
+	for rows.Next() {
+		var i AgreementForm
+		if err := rows.Scan(
+			&i.ID,
+			&i.FromAccount,
+			&i.ToAccount,
+			&i.ProductIds,
+			&i.ActionTypeForAgreement,
+			&i.WholesalePrice,
+			&i.RetailPrice,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const updateAgreementForm = `-- name: UpdateAgreementForm :one
+UPDATE agreement_forms
+SET 
+product_ids = COALESCE($1, product_ids),
+action_type_for_agreement = COALESCE($2, action_type_for_agreement),
+wholesale_price = COALESCE($3, wholesale_price),
+retail_price = COALESCE($4, retail_price)
+WHERE id = $5
+RETURNING id, from_account, to_account, product_ids, action_type_for_agreement, wholesale_price, retail_price
+`
+
+type UpdateAgreementFormParams struct {
+	ProductIds             []int32    `json:"product_ids"`
+	ActionTypeForAgreement ActionType `json:"action_type_for_agreement"`
+	WholesalePrice         float64    `json:"wholesale_price"`
+	RetailPrice            float64    `json:"retail_price"`
+	ID                     int32      `json:"id"`
+}
+
+func (q *Queries) UpdateAgreementForm(ctx context.Context, arg UpdateAgreementFormParams) (AgreementForm, error) {
+	row := q.db.QueryRow(ctx, updateAgreementForm,
+		arg.ProductIds,
+		arg.ActionTypeForAgreement,
+		arg.WholesalePrice,
+		arg.RetailPrice,
+		arg.ID,
 	)
 	var i AgreementForm
 	err := row.Scan(

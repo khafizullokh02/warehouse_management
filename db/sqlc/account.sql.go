@@ -12,8 +12,14 @@ import (
 )
 
 const createAccount = `-- name: CreateAccount :one
-INSERT INTO accounts (user_id, name)
-VALUES ($1, $2)
+INSERT INTO accounts (
+    user_id,
+    name
+)
+VALUES (
+    $1,
+    $2
+)
 RETURNING id, user_id, name, created_at
 `
 

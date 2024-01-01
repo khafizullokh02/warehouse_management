@@ -18,7 +18,7 @@ LIMIT 1;
 -- name: ListUsers :many
 SELECT * 
 FROM users
-WHere name = $1
+WHERE name = $1
 ORDER BY id
 LIMIT $2
 OFFSET $3;
