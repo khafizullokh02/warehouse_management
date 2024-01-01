@@ -148,50 +148,50 @@ func (ns NullCurrencyCode) Value() (driver.Value, error) {
 	return string(ns.CurrencyCode), nil
 }
 
-type EntryGroupsStatus string
+type EntryGroupStatus string
 
 const (
-	EntryGroupsStatusInitial    EntryGroupsStatus = "initial"
-	EntryGroupsStatusInProgress EntryGroupsStatus = "in_progress"
-	EntryGroupsStatusInDelivery EntryGroupsStatus = "in_delivery"
-	EntryGroupsStatusDelivered  EntryGroupsStatus = "delivered"
-	EntryGroupsStatusAccepted   EntryGroupsStatus = "accepted"
-	EntryGroupsStatusNone       EntryGroupsStatus = "none"
+	EntryGroupStatusInitial    EntryGroupStatus = "initial"
+	EntryGroupStatusInProgress EntryGroupStatus = "in_progress"
+	EntryGroupStatusInDelivery EntryGroupStatus = "in_delivery"
+	EntryGroupStatusDelivered  EntryGroupStatus = "delivered"
+	EntryGroupStatusAccepted   EntryGroupStatus = "accepted"
+	EntryGroupStatusNone       EntryGroupStatus = "none"
 )
 
-func (e *EntryGroupsStatus) Scan(src interface{}) error {
+func (e *EntryGroupStatus) Scan(src interface{}) error {
 	switch s := src.(type) {
 	case []byte:
-		*e = EntryGroupsStatus(s)
+		*e = EntryGroupStatus(s)
 	case string:
-		*e = EntryGroupsStatus(s)
+		*e = EntryGroupStatus(s)
 	default:
-		return fmt.Errorf("unsupported scan type for EntryGroupsStatus: %T", src)
+		return fmt.Errorf("unsupported scan type for EntryGroupStatus: %T", src)
 	}
 	return nil
 }
 
-type NullEntryGroupsStatus struct {
-	EntryGroupsStatus EntryGroupsStatus `json:"entry_groups_status"`
-	Valid             bool              `json:"valid"` // Valid is true if EntryGroupsStatus is not NULL
+type NullEntryGroupStatus struct {
+	EntryGroupStatus EntryGroupStatus `json:"entry_group_status"`
+	Valid            bool             `json:"valid"` // Valid is true if EntryGroupStatus is not NULL
 }
 
 // Scan implements the Scanner interface.
-func (ns *NullEntryGroupsStatus) Scan(value interface{}) error {
+func (ns *NullEntryGroupStatus) Scan(value interface{}) error {
 	if value == nil {
-		ns.EntryGroupsStatus, ns.Valid = "", false
+		ns.EntryGroupStatus, ns.Valid = "", false
 		return nil
 	}
 	ns.Valid = true
-	return ns.EntryGroupsStatus.Scan(value)
+	return ns.EntryGroupStatus.Scan(value)
 }
 
 // Value implements the driver Valuer interface.
-func (ns NullEntryGroupsStatus) Value() (driver.Value, error) {
+func (ns NullEntryGroupStatus) Value() (driver.Value, error) {
 	if !ns.Valid {
 		return nil, nil
 	}
-	return string(ns.EntryGroupsStatus), nil
+	return string(ns.EntryGroupStatus), nil
 }
 
 type PricingType string
@@ -238,9 +238,10 @@ func (ns NullPricingType) Value() (driver.Value, error) {
 }
 
 type Account struct {
-	ID     int32  `json:"id"`
-	UserID int32  `json:"user_id"`
-	Name   string `json:"name"`
+	ID        int32            `json:"id"`
+	UserID    int32            `json:"user_id"`
+	Name      string           `json:"name"`
+	CreatedAt pgtype.Timestamp `json:"created_at"`
 }
 
 type AgreementForm struct {
@@ -254,16 +255,16 @@ type AgreementForm struct {
 }
 
 type EntryGroup struct {
-	ID                int32             `json:"id"`
-	Quantity          int32             `json:"quantity"`
-	ActionType        ActionType        `json:"action_type"`
-	PricingType       PricingType       `json:"pricing_type"`
-	Price             float64           `json:"price"`
-	Currency          CurrencyCode      `json:"currency"`
-	EntryGroupsStatus EntryGroupsStatus `json:"entry_groups_status"`
-	CreatedAt         pgtype.Timestamp  `json:"created_at"`
-	UpdatedAt         pgtype.Timestamp  `json:"updated_at"`
-	DeletedAt         zero.Time         `json:"deleted_at"`
+	ID               int32            `json:"id"`
+	Quantity         int32            `json:"quantity"`
+	ActionType       ActionType       `json:"action_type"`
+	PricingType      PricingType      `json:"pricing_type"`
+	Price            float64          `json:"price"`
+	Currency         CurrencyCode     `json:"currency"`
+	EntryGroupStatus EntryGroupStatus `json:"entry_group_status"`
+	CreatedAt        pgtype.Timestamp `json:"created_at"`
+	UpdatedAt        pgtype.Timestamp `json:"updated_at"`
+	DeletedAt        zero.Time        `json:"deleted_at"`
 }
 
 type EntryItem struct {

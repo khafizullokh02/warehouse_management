@@ -1,29 +1,51 @@
 -- name: CreateProduct :one
 INSERT INTO products (
-  id,
   name,
+  sup_code,
+  bar_code,
   image,
-  brand
+  brand,
+  wholesale_price,
+  retail_price
 ) VALUES (
-  $1, $2, $3, $4
+  sqlc.arg(name),
+  sqlc.arg(sup_code),
+  sqlc.arg(bar_code),
+  sqlc.arg(image),
+  sqlc.arg(brand),
+  sqlc.arg(wholesale_price),
+  sqlc.arg(retail_price)
 ) RETURNING *;
 
 -- name: GetProduct :one
-SELECT * FROM products
-WHERE id = $1 LIMIT 1;
+SELECT * 
+FROM products
+WHERE id = sqlc.arg(id)
+LIMIT 1;
 
 -- name: ListProducts :many
-SELECT * FROM products
+SELECT * 
+FROM products
+WHERE name = $1
 ORDER BY id
-LIMIT $1
-OFFSET $2;
+LIMIT $2
+OFFSET $3;
 
 -- name: UpdateProduct :one
 UPDATE products
-SET name = $2
-WHERE id = $1
+SET
+name = COALESCE(sqlc.arg(name), name), 
+sup_code = COALESCE(sqlc.arg(sup_code), sup_code),
+bar_code = COALESCE(sqlc.arg(bar_code), bar_code),
+image = COALESCE(sqlc.arg(image), image),
+brand = COALESCE(sqlc.arg(brand), brand),
+wholesale_price = COALESCE(sqlc.arg(wholesale_price), wholesale_price),
+retail_price = COALESCE(sqlc.arg(retail_price), retail_price),
+discount = COALESCE(sqlc.arg(discount), discount),
+created_at = COALESCE(sqlc.arg(created_at), created_at)
+WHERE id = sqlc.arg(id)
 RETURNING *;
 
 -- name: DeleteProduct :exec
 DELETE FROM products
-WHERE id = $1;
+WHERE id = sqlc.arg(id);

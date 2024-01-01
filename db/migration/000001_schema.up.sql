@@ -12,7 +12,7 @@ CREATE TYPE "pricing_type" AS ENUM (
   'none'
 );
 
-CREATE TYPE "entry_groups_status" AS ENUM (
+CREATE TYPE "entry_group_status" AS ENUM (
   'initial',
   'in_progress',
   'in_delivery',
@@ -51,7 +51,8 @@ CREATE TABLE "users" (
 CREATE TABLE "accounts" (
   "id" serial PRIMARY KEY,
   "user_id" integer NOT NULL,
-  "name" varchar NOT NULL
+  "name" varchar NOT NULL,
+  "created_at" timestamp NOT NULL DEFAULT (now())
 );
 
 CREATE TABLE "products" (
@@ -74,7 +75,7 @@ CREATE TABLE "entry_group" (
   "pricing_type" pricing_type NOT NULL DEFAULT 'none',
   "price" float NOT NULL,
   "currency" currency_code NOT NULL DEFAULT 'none',
-  "entry_groups_status" entry_groups_status NOT NULL DEFAULT 'none',
+  "entry_group_status" entry_group_status NOT NULL DEFAULT 'none',
   "created_at" timestamp NOT NULL DEFAULT (now()),
   "updated_at" timestamp NOT NULL DEFAULT (now()),
   "deleted_at" timestamp DEFAULT null

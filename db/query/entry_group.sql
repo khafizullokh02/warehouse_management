@@ -5,27 +5,38 @@ INSERT INTO entry_group (
   action_type,
   pricing_type,
   price,
-  currency
+  currency,
+  entry_group_status
 ) VALUES (
-  $1, $2, $3, $4, $5, $6
+  sqlc.arg(id),
+  sqlc.arg(quantity),
+  sqlc.arg(action_type),
+  sqlc.arg(pricing_type),
+  sqlc.arg(price),
+  sqlc.arg(currency),
+  sqlc.arg(entry_group_status)
 ) RETURNING *;
 
 -- name: GetEntryGroup :one
-SELECT * FROM entry_group
-WHERE id = $1 LIMIT 1;
+SELECT * 
+FROM entry_group
+WHERE id = sqlc.arg(id)
+LIMIT 1;
 
 -- name: ListEntryGroups :many
-SELECT * FROM entry_group
+SELECT * 
+FROM entry_group
+WHERE id = $1
 ORDER BY id
-LIMIT $1
-OFFSET $2;
+LIMIT $2
+OFFSET $3;
 
 -- name: UpdateEntryGroup :one
 UPDATE entry_group
-SET price = $2
-WHERE id = $1
+SET price = sqlc.arg(price)
+WHERE id = sqlc.arg(id)
 RETURNING *;
 
 -- name: DeleteEntryGroup :exec
 DELETE FROM entry_group
-WHERE id = $1;
+WHERE id = sqlc.arg(id);

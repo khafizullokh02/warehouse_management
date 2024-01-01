@@ -55,8 +55,10 @@ func (q *Queries) DeleteEntryItems(ctx context.Context, id int32) error {
 }
 
 const getEntryItems = `-- name: GetEntryItems :one
-SELECT id, product_id, entry_group_id, sup_code FROM entry_items
-WHERE id = $1 LIMIT 1
+SELECT id, product_id, entry_group_id, sup_code 
+FROM entry_items
+WHERE id = $1
+LIMIT 1
 `
 
 func (q *Queries) GetEntryItems(ctx context.Context, id int32) (EntryItem, error) {
@@ -72,19 +74,20 @@ func (q *Queries) GetEntryItems(ctx context.Context, id int32) (EntryItem, error
 }
 
 const listEntryItems = `-- name: ListEntryItems :many
-SELECT id, product_id, entry_group_id, sup_code FROM entry_items
+SELECT id, product_id, entry_group_id, sup_code 
+FROM entry_items
 ORDER BY id
-LIMIT $1
-OFFSET $2
+LIMIT $2
+OFFSET $1
 `
 
 type ListEntryItemsParams struct {
-	Limit  int32 `json:"limit"`
-	Offset int32 `json:"offset"`
+	ProductID int32 `json:"product_id"`
+	ID        int32 `json:"id"`
 }
 
 func (q *Queries) ListEntryItems(ctx context.Context, arg ListEntryItemsParams) ([]EntryItem, error) {
-	rows, err := q.db.Query(ctx, listEntryItems, arg.Limit, arg.Offset)
+	rows, err := q.db.Query(ctx, listEntryItems, arg.ProductID, arg.ID)
 	if err != nil {
 		return nil, err
 	}
@@ -110,18 +113,18 @@ func (q *Queries) ListEntryItems(ctx context.Context, arg ListEntryItemsParams) 
 
 const updateEntryItems = `-- name: UpdateEntryItems :one
 UPDATE entry_items
-SET product_id = $2
-WHERE id = $1
+SET product_id = $1
+WHERE id = $2
 RETURNING id, product_id, entry_group_id, sup_code
 `
 
 type UpdateEntryItemsParams struct {
-	ID        int32 `json:"id"`
 	ProductID int32 `json:"product_id"`
+	ID        int32 `json:"id"`
 }
 
 func (q *Queries) UpdateEntryItems(ctx context.Context, arg UpdateEntryItemsParams) (EntryItem, error) {
-	row := q.db.QueryRow(ctx, updateEntryItems, arg.ID, arg.ProductID)
+	row := q.db.QueryRow(ctx, updateEntryItems, arg.ProductID, arg.ID)
 	var i EntryItem
 	err := row.Scan(
 		&i.ID,
