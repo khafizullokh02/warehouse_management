@@ -1,6 +1,12 @@
 -- name: CreateAccount :one
-INSERT INTO accounts (user_id, name)
-VALUES (sqlc.arg(user_id), sqlc.arg(name))
+INSERT INTO accounts (
+    user_id,
+    name
+)
+VALUES (
+    sqlc.arg(user_id),
+    sqlc.arg(name)
+)
 RETURNING *;
 
 -- name: GetAccount :one

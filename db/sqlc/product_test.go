@@ -75,7 +75,7 @@ func TestUpdateProduct(t *testing.T) {
 	require.NotEmpty(t, product2)
 
 	require.Equal(t, product1, product2)
-	require.WithinDuration(t, product1.CreatedAt.Time, product2.CreatedAt.Time, time.Second) // there was an error when I wanted to do: product.CreatedAt
+	require.WithinDuration(t, product1.CreatedAt.Time, product2.CreatedAt.Time, time.Second)
 }
 
 func TestDeleteProduct(t *testing.T) {
@@ -85,7 +85,7 @@ func TestDeleteProduct(t *testing.T) {
 
 	product2, err := testStore.GetProduct(context.Background(), product1.ID)
 	require.Error(t, err)
-	// require.EqualError(t, err, ErrRecordNotFound.Error()) // this line didn't work because error recorder wasnot declared
+	require.EqualError(t, err, ErrRecordNotFound.Error())
 	require.Empty(t, product2)
 }
 
