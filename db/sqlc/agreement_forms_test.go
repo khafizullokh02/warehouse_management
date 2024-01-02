@@ -2,6 +2,7 @@ package db
 
 import (
 	"context"
+	"encoding/json"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -64,57 +65,42 @@ func TestGetAgreementForm(t *testing.T) {
 }
 
 func TestListAgreementForms(t *testing.T) {
-	account1 := createRandomAccount(t)
-	account2 := createRandomAccount(t)
-
 	for i := 0; i < 10; i++ {
 		createRandomAgreementForm(t, string(ActionTypeSell))
 		createRandomAgreementForm(t, string(ActionTypeBuy))
 	}
 
 	arg := ListAgreementFormsParams{
-		FromAccount: account1.ID,
-		ToAccount:   account2.ID,
-		Limit:       5,
-		Offset:      5,
+		Limit:  5,
+		Offset: 5,
 	}
 
 	agreementForms, err := testStore.ListAgreementForms(context.Background(), arg)
 	require.NoError(t, err)
-	// require.Len(t, agreementForms, 5)
-
-	for _, agreementForm := range agreementForms {
-		require.NotEmpty(t, agreementForm)
-		require.True(t, agreementForm.FromAccount == account1.ID ||
-			agreementForm.ToAccount == account1.ID)
-	}
+	require.Len(t, agreementForms, 5)
 }
 
-// func TestUpdateAgreementForm(t *testing.T) {
-// 	account1 := createRandomAccount(t)
-// 	product := createRandomProduct(t)
+func TestUpdateAgreementFormByProductIds(t *testing.T) {
+	agreement := createRandomAgreementForm(t, string(ActionTypeBuy))
+	product := createRandomProduct(t)
 
-// 	arg := UpdateAgreementFormParams{
-// 		ProductIds:             []int32{product.ID},
-// 		ActionTypeForAgreement: ActionTypeNone,
-// 		WholesalePrice:         fake.Float64(2, 10, 1000),
-// 		RetailPrice:            fake.Float64(2, 10, 1000),
-// 		ID:                     account1.ID,
-// 	}
+	dbPayloadUpdate := UpdateAgreementFormParams{
+		ProductIds: []int32{product.ID},
+		ID:         agreement.ID,
+	}
 
-// 	account2, err := testStore.UpdateAgreementForm(context.Background(), arg)
-// 	require.NoError(t, err)
-// 	require.NotEmpty(t, account2)
+	bytes, err := json.Marshal(dbPayloadUpdate)
+	require.NoError(t, err)
 
-// 	// require.Equal(t,account1., account2.)
-// 	// require.Equal(t,account1., account2.)
-// 	// require.Equal(t,account1.ToAccount, account2.ToAccount)
-// 	// require.Equal(t,account1.ProductIds, account2.ProductIds)
-// 	// require.Equal(t,account1.ActionTypeForAgreement, account2.ActionTypeForAgreement)
-// 	// require.Equal(t,account1.WholesalePrice, account2.WholesalePrice)
-// 	// require.Equal(t,account1.RetailPrice, account2.RetailPrice)
+	err = json.Unmarshal(bytes, &dbPayloadUpdate)
+	require.NoError(t, err)
 
-// }
+	updatedAgrementForm, err := testStore.UpdateAgreementForm(context.Background(), dbPayloadUpdate)
+	require.NoError(t, err, "failed to update the database item")
+	require.Equal(t, []int32{product.ID}, updatedAgrementForm.ProductIds)
+	require.Equal(t, agreement.ActionTypeForAgreement, updatedAgrementForm.ActionTypeForAgreement)
+	require.Equal(t, agreement.WholesalePrice, updatedAgrementForm.WholesalePrice)
+}
 
 func TestDeleteAgreementForm(t *testing.T) {
 	account1 := createRandomAccount(t)

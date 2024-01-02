@@ -6,6 +6,8 @@ package db
 
 import (
 	"context"
+
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 type Querier interface {
@@ -17,7 +19,7 @@ type Querier interface {
 	CreateUser(ctx context.Context, arg CreateUserParams) (User, error)
 	DeleteAccount(ctx context.Context, id int32) error
 	DeleteAgreementForm(ctx context.Context, id int32) error
-	DeleteEntryGroup(ctx context.Context, id int32) error
+	DeleteEntryGroup(ctx context.Context, id pgtype.Int4) error
 	DeleteEntryItems(ctx context.Context, id int32) error
 	DeleteProduct(ctx context.Context, id int32) error
 	DeleteUser(ctx context.Context, id int32) error
