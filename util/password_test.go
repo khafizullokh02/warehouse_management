@@ -13,6 +13,7 @@ var (
 )
 
 func TestPassword(t *testing.T) {
+	fake = faker.New()
 	password := fake.RandomStringWithLength(6)
 
 	hashedPassword1, err := HashPassword(password)

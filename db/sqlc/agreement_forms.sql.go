@@ -7,6 +7,8 @@ package db
 
 import (
 	"context"
+
+	zero "gopkg.in/guregu/null.v4/zero"
 )
 
 const createAgreementForm = `-- name: CreateAgreementForm :one
@@ -95,28 +97,18 @@ func (q *Queries) GetAgreementForm(ctx context.Context, id int32) (AgreementForm
 const listAgreementForms = `-- name: ListAgreementForms :many
 SELECT id, from_account, to_account, product_ids, action_type_for_agreement, wholesale_price, retail_price
 FROM agreement_forms
-WHERE 
-    from_account = $1 OR
-    to_account = $2
 ORDER BY id DESC
-LIMIT $4
-OFFSET $3
+LIMIT $2
+OFFSET $1
 `
 
 type ListAgreementFormsParams struct {
-	FromAccount int32 `json:"from_account"`
-	ToAccount   int32 `json:"to_account"`
-	Offset      int32 `json:"offset"`
-	Limit       int32 `json:"limit"`
+	Offset int32 `json:"offset"`
+	Limit  int32 `json:"limit"`
 }
 
 func (q *Queries) ListAgreementForms(ctx context.Context, arg ListAgreementFormsParams) ([]AgreementForm, error) {
-	rows, err := q.db.Query(ctx, listAgreementForms,
-		arg.FromAccount,
-		arg.ToAccount,
-		arg.Offset,
-		arg.Limit,
-	)
+	rows, err := q.db.Query(ctx, listAgreementForms, arg.Offset, arg.Limit)
 	if err != nil {
 		return nil, err
 	}
@@ -145,7 +137,7 @@ func (q *Queries) ListAgreementForms(ctx context.Context, arg ListAgreementForms
 
 const updateAgreementForm = `-- name: UpdateAgreementForm :one
 UPDATE agreement_forms
-SET 
+SET
 product_ids = COALESCE($1, product_ids),
 action_type_for_agreement = COALESCE($2, action_type_for_agreement),
 wholesale_price = COALESCE($3, wholesale_price),
@@ -155,11 +147,11 @@ RETURNING id, from_account, to_account, product_ids, action_type_for_agreement, 
 `
 
 type UpdateAgreementFormParams struct {
-	ProductIds             []int32    `json:"product_ids"`
-	ActionTypeForAgreement ActionType `json:"action_type_for_agreement"`
-	WholesalePrice         float64    `json:"wholesale_price"`
-	RetailPrice            float64    `json:"retail_price"`
-	ID                     int32      `json:"id"`
+	ProductIds             []int32     `json:"product_ids"`
+	ActionTypeForAgreement zero.String `json:"action_type_for_agreement"`
+	WholesalePrice         zero.Float  `json:"wholesale_price"`
+	RetailPrice            zero.Float  `json:"retail_price"`
+	ID                     int32       `json:"id"`
 }
 
 func (q *Queries) UpdateAgreementForm(ctx context.Context, arg UpdateAgreementFormParams) (AgreementForm, error) {

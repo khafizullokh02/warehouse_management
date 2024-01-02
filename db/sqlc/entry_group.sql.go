@@ -7,11 +7,13 @@ package db
 
 import (
 	"context"
+
+	"github.com/jackc/pgx/v5/pgtype"
+	zero "gopkg.in/guregu/null.v4/zero"
 )
 
 const createEntryGroup = `-- name: CreateEntryGroup :one
 INSERT INTO entry_group (
-  id,
   quantity,
   action_type,
   pricing_type,
@@ -24,13 +26,11 @@ INSERT INTO entry_group (
   $3,
   $4,
   $5,
-  $6,
-  $7
+  $6
 ) RETURNING id, quantity, action_type, pricing_type, price, currency, entry_group_status, created_at, updated_at, deleted_at
 `
 
 type CreateEntryGroupParams struct {
-	ID               int32            `json:"id"`
 	Quantity         int32            `json:"quantity"`
 	ActionType       ActionType       `json:"action_type"`
 	PricingType      PricingType      `json:"pricing_type"`
@@ -41,7 +41,6 @@ type CreateEntryGroupParams struct {
 
 func (q *Queries) CreateEntryGroup(ctx context.Context, arg CreateEntryGroupParams) (EntryGroup, error) {
 	row := q.db.QueryRow(ctx, createEntryGroup,
-		arg.ID,
 		arg.Quantity,
 		arg.ActionType,
 		arg.PricingType,
@@ -70,7 +69,7 @@ DELETE FROM entry_group
 WHERE id = $1
 `
 
-func (q *Queries) DeleteEntryGroup(ctx context.Context, id int32) error {
+func (q *Queries) DeleteEntryGroup(ctx context.Context, id pgtype.Int4) error {
 	_, err := q.db.Exec(ctx, deleteEntryGroup, id)
 	return err
 }
@@ -103,20 +102,18 @@ func (q *Queries) GetEntryGroup(ctx context.Context, id int32) (EntryGroup, erro
 const listEntryGroups = `-- name: ListEntryGroups :many
 SELECT id, quantity, action_type, pricing_type, price, currency, entry_group_status, created_at, updated_at, deleted_at 
 FROM entry_group
-WHERE id = $1
 ORDER BY id
-LIMIT $2
-OFFSET $3
+LIMIT $1
+OFFSET $2
 `
 
 type ListEntryGroupsParams struct {
-	ID     int32 `json:"id"`
 	Limit  int32 `json:"limit"`
 	Offset int32 `json:"offset"`
 }
 
 func (q *Queries) ListEntryGroups(ctx context.Context, arg ListEntryGroupsParams) ([]EntryGroup, error) {
-	rows, err := q.db.Query(ctx, listEntryGroups, arg.ID, arg.Limit, arg.Offset)
+	rows, err := q.db.Query(ctx, listEntryGroups, arg.Limit, arg.Offset)
 	if err != nil {
 		return nil, err
 	}
@@ -154,8 +151,8 @@ RETURNING id, quantity, action_type, pricing_type, price, currency, entry_group_
 `
 
 type UpdateEntryGroupParams struct {
-	Price float64 `json:"price"`
-	ID    int32   `json:"id"`
+	Price zero.Float  `json:"price"`
+	ID    pgtype.Int4 `json:"id"`
 }
 
 func (q *Queries) UpdateEntryGroup(ctx context.Context, arg UpdateEntryGroupParams) (EntryGroup, error) {

@@ -29,6 +29,7 @@ CREATE TYPE "agreement_forms_status" AS ENUM (
   'rejected',
   'done',
   'none'
+  ''
 );
 
 CREATE TYPE "currency_code" AS ENUM (

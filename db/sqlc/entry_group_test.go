@@ -8,9 +8,8 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func createRandomEntryGroup(t *testing.T, account Account) EntryGroup {
+func createRandomEntryGroup(t *testing.T) EntryGroup {
 	arg := CreateEntryGroupParams{
-		ID:               account.ID,
 		Quantity:         int32(fake.RandomDigit()),
 		ActionType:       ActionTypeBuy,
 		PricingType:      PricingTypeWholesale,
@@ -23,7 +22,6 @@ func createRandomEntryGroup(t *testing.T, account Account) EntryGroup {
 	require.NoError(t, err)
 	require.NotEmpty(t, entryGroup)
 
-	require.Equal(t, arg.ID, entryGroup.ID)
 	require.Equal(t, arg.Quantity, entryGroup.Quantity)
 	require.Equal(t, arg.ActionType, entryGroup.ActionType)
 	require.Equal(t, arg.PricingType, entryGroup.PricingType)
@@ -38,13 +36,11 @@ func createRandomEntryGroup(t *testing.T, account Account) EntryGroup {
 }
 
 func TestCreateEntryGroup(t *testing.T) {
-	account := createRandomAccount(t)
-	createRandomEntryGroup(t, account)
+	createRandomEntryGroup(t)
 }
 
 func TestGetEntryGroup(t *testing.T) {
-	account := createRandomAccount(t)
-	entryGroup1 := createRandomEntryGroup(t, account)
+	entryGroup1 := createRandomEntryGroup(t)
 	entryGroup2, err := testStore.GetEntryGroup(context.Background(), entryGroup1.ID)
 	require.NoError(t, err)
 	require.NotEmpty(t, entryGroup2)
@@ -60,13 +56,11 @@ func TestGetEntryGroup(t *testing.T) {
 }
 
 func TestListEntryGroup(t *testing.T) {
-	account := createRandomAccount(t)
 	for i := 0; i < 10; i++ {
-		createRandomEntryGroup(t, account)
+		createRandomEntryGroup(t)
 	}
 
 	arg := ListEntryGroupsParams{
-		ID:     account.ID,
 		Limit:  5,
 		Offset: 5,
 	}
@@ -77,6 +71,5 @@ func TestListEntryGroup(t *testing.T) {
 
 	for _, entryGroup := range entryGroups {
 		require.NotEmpty(t, entryGroup)
-		require.Equal(t, arg.ID, entryGroup.ID)
 	}
 }
