@@ -86,7 +86,8 @@ CREATE TABLE "entry_items" (
   "id" serial PRIMARY KEY,
   "product_id" integer NOT NULL,
   "entry_group_id" integer NOT NULL,
-  "sup_code" varchar NOT NULL
+  "sup_code" varchar NOT NULL,
+  "created_at" timestamp NOT NULL DEFAULT (now())
 );
 
 CREATE TABLE "agreement_forms" (

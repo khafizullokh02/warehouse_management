@@ -19,7 +19,8 @@ LIMIT 1;
 SELECT *
 FROM accounts
 ORDER BY id DESC
-LIMIT $1 OFFSET $2;
+LIMIT $1
+OFFSET $2;
 
 -- name: UpdateAccount :one
 UPDATE accounts

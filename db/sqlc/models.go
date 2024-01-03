@@ -268,10 +268,11 @@ type EntryGroup struct {
 }
 
 type EntryItem struct {
-	ID           int32  `json:"id"`
-	ProductID    int32  `json:"product_id"`
-	EntryGroupID int32  `json:"entry_group_id"`
-	SupCode      string `json:"sup_code"`
+	ID           int32            `json:"id"`
+	ProductID    int32            `json:"product_id"`
+	EntryGroupID int32            `json:"entry_group_id"`
+	SupCode      string           `json:"sup_code"`
+	CreatedAt    pgtype.Timestamp `json:"created_at"`
 }
 
 type Product struct {
