@@ -73,7 +73,8 @@ const listAccounts = `-- name: ListAccounts :many
 SELECT id, user_id, name, created_at
 FROM accounts
 ORDER BY id DESC
-LIMIT $1 OFFSET $2
+LIMIT $1
+OFFSET $2
 `
 
 type ListAccountsParams struct {

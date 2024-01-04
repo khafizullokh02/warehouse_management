@@ -66,8 +66,8 @@ func TestGetAgreementForm(t *testing.T) {
 
 func TestListAgreementForms(t *testing.T) {
 	for i := 0; i < 10; i++ {
-		createRandomAgreementForm(t, string(ActionTypeSell))
 		createRandomAgreementForm(t, string(ActionTypeBuy))
+		createRandomAgreementForm(t, string(ActionTypeSell))
 	}
 
 	arg := ListAgreementFormsParams{

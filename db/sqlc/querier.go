@@ -14,19 +14,19 @@ type Querier interface {
 	CreateAccount(ctx context.Context, arg CreateAccountParams) (Account, error)
 	CreateAgreementForm(ctx context.Context, arg CreateAgreementFormParams) (AgreementForm, error)
 	CreateEntryGroup(ctx context.Context, arg CreateEntryGroupParams) (EntryGroup, error)
-	CreateEntryItems(ctx context.Context, arg CreateEntryItemsParams) (EntryItem, error)
+	CreateEntryItem(ctx context.Context, arg CreateEntryItemParams) (EntryItem, error)
 	CreateProduct(ctx context.Context, arg CreateProductParams) (Product, error)
 	CreateUser(ctx context.Context, arg CreateUserParams) (User, error)
 	DeleteAccount(ctx context.Context, id int32) error
 	DeleteAgreementForm(ctx context.Context, id int32) error
 	DeleteEntryGroup(ctx context.Context, id pgtype.Int4) error
-	DeleteEntryItems(ctx context.Context, id int32) error
+	DeleteEntryItem(ctx context.Context, id int32) error
 	DeleteProduct(ctx context.Context, id int32) error
 	DeleteUser(ctx context.Context, id int32) error
 	GetAccount(ctx context.Context, id int32) (Account, error)
 	GetAgreementForm(ctx context.Context, id int32) (AgreementForm, error)
 	GetEntryGroup(ctx context.Context, id int32) (EntryGroup, error)
-	GetEntryItems(ctx context.Context, id int32) (EntryItem, error)
+	GetEntryItem(ctx context.Context, id int32) (EntryItem, error)
 	GetProduct(ctx context.Context, id int32) (Product, error)
 	GetUser(ctx context.Context, id int32) (User, error)
 	ListAccounts(ctx context.Context, arg ListAccountsParams) ([]Account, error)
@@ -38,7 +38,7 @@ type Querier interface {
 	UpdateAccount(ctx context.Context, arg UpdateAccountParams) (Account, error)
 	UpdateAgreementForm(ctx context.Context, arg UpdateAgreementFormParams) (AgreementForm, error)
 	UpdateEntryGroup(ctx context.Context, arg UpdateEntryGroupParams) (EntryGroup, error)
-	UpdateEntryItems(ctx context.Context, arg UpdateEntryItemsParams) (EntryItem, error)
+	UpdateEntryItem(ctx context.Context, arg UpdateEntryItemParams) (EntryItem, error)
 	UpdateProduct(ctx context.Context, arg UpdateProductParams) (Product, error)
 	UpdateUser(ctx context.Context, arg UpdateUserParams) (User, error)
 }
