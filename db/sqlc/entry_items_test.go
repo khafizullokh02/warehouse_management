@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/stretchr/testify/require"
+	"gopkg.in/guregu/null.v4/zero"
 )
 
 func createRandomEntryItem(t *testing.T, product Product) EntryItem {
@@ -69,24 +70,23 @@ func TestListEntryItem(t *testing.T) {
 
 func TestUpdateEntryItem(t *testing.T) {
 	product := createRandomProduct(t)
-	entryGroup := createRandomEntryGroup(t)
-	entryItem1 := createRandomEntryItem(t, product)
+	entryItem := createRandomEntryItem(t, product)
 
+	supCode := fake.RandomStringWithLength(10)
 	arg := UpdateEntryItemParams{
-		ProductID:    product.ID,
-		EntryGroupID: entryGroup.ID,
-		SupCode:      product.SupCode,
-		ID:           entryItem1.ID,
+		ProductID:    zero.IntFrom(int64(product.ID)),
+		EntryGroupID: zero.IntFrom(int64(entryItem.EntryGroupID)),
+		SupCode:      zero.StringFrom(supCode),
+		ID:           entryItem.ID,
 	}
 
-	entryItem2, err := testStore.UpdateEntryItem(context.Background(), arg)
+	entryItemDB, err := testStore.UpdateEntryItem(context.Background(), arg)
 	require.NoError(t, err)
-	require.NotEmpty(t, entryItem2)
+	require.NotEmpty(t, entryItemDB)
 
-	require.Equal(t, entryItem1.ID, entryItem2.ID)
-	require.Equal(t, entryItem1.EntryGroupID, entryItem2.EntryGroupID)
-	require.Equal(t, entryItem1.SupCode, entryItem2.SupCode)
-	require.WithinDuration(t, entryItem1.CreatedAt.Time, entryItem2.CreatedAt.Time, time.Second)
+	require.Equal(t, entryItem.ID, entryItemDB.ID)
+	require.Equal(t, entryItem.EntryGroupID, entryItemDB.EntryGroupID)
+	require.Equal(t, arg.SupCode.String, entryItemDB.SupCode)
 }
 
 func TestDeleteEntryItem(t *testing.T) {

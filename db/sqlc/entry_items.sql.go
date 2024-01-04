@@ -7,18 +7,18 @@ package db
 
 import (
 	"context"
+
+	zero "gopkg.in/guregu/null.v4/zero"
 )
 
 const createEntryItem = `-- name: CreateEntryItem :one
-INSERT INTO entry_items (
-  product_id,
-  entry_group_id,
-  sup_code
-) VALUES (
-  $1,
-  $2,
-  $3
-) RETURNING id, product_id, entry_group_id, sup_code, created_at
+INSERT INTO entry_items (product_id, entry_group_id, sup_code)
+VALUES (
+    $1,
+    $2,
+    $3
+  )
+RETURNING id, product_id, entry_group_id, sup_code, created_at
 `
 
 type CreateEntryItemParams struct {
@@ -51,7 +51,7 @@ func (q *Queries) DeleteEntryItem(ctx context.Context, id int32) error {
 }
 
 const getEntryItem = `-- name: GetEntryItem :one
-SELECT id, product_id, entry_group_id, sup_code, created_at 
+SELECT id, product_id, entry_group_id, sup_code, created_at
 FROM entry_items
 WHERE id = $1
 LIMIT 1
@@ -71,11 +71,10 @@ func (q *Queries) GetEntryItem(ctx context.Context, id int32) (EntryItem, error)
 }
 
 const listEntryItems = `-- name: ListEntryItems :many
-SELECT id, product_id, entry_group_id, sup_code, created_at 
+SELECT id, product_id, entry_group_id, sup_code, created_at
 FROM entry_items
 ORDER BY id DESC
-LIMIT $2
-OFFSET $1
+LIMIT $2 OFFSET $1
 `
 
 type ListEntryItemsParams struct {
@@ -111,19 +110,18 @@ func (q *Queries) ListEntryItems(ctx context.Context, arg ListEntryItemsParams) 
 
 const updateEntryItem = `-- name: UpdateEntryItem :one
 UPDATE entry_items
-SET 
-product_id = COALESCE($1, product_id),
-entry_group_id = COALESCE($2, entry_group_id), 
-sup_code = COALESCE($3, sup_code)
+SET product_id = COALESCE($1, product_id),
+  entry_group_id = COALESCE($2, entry_group_id),
+  sup_code = COALESCE($3, sup_code)
 WHERE id = $4
 RETURNING id, product_id, entry_group_id, sup_code, created_at
 `
 
 type UpdateEntryItemParams struct {
-	ProductID    int32  `json:"product_id"`
-	EntryGroupID int32  `json:"entry_group_id"`
-	SupCode      string `json:"sup_code"`
-	ID           int32  `json:"id"`
+	ProductID    zero.Int    `json:"product_id"`
+	EntryGroupID zero.Int    `json:"entry_group_id"`
+	SupCode      zero.String `json:"sup_code"`
+	ID           int32       `json:"id"`
 }
 
 func (q *Queries) UpdateEntryItem(ctx context.Context, arg UpdateEntryItemParams) (EntryItem, error) {
