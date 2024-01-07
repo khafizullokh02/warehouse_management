@@ -73,17 +73,17 @@ const listAccounts = `-- name: ListAccounts :many
 SELECT id, user_id, name, created_at
 FROM accounts
 ORDER BY id DESC
-LIMIT $1
-OFFSET $2
+LIMIT $2
+OFFSET $1
 `
 
 type ListAccountsParams struct {
-	Limit  int32 `json:"limit"`
 	Offset int32 `json:"offset"`
+	Limit  int32 `json:"limit"`
 }
 
 func (q *Queries) ListAccounts(ctx context.Context, arg ListAccountsParams) ([]Account, error) {
-	rows, err := q.db.Query(ctx, listAccounts, arg.Limit, arg.Offset)
+	rows, err := q.db.Query(ctx, listAccounts, arg.Offset, arg.Limit)
 	if err != nil {
 		return nil, err
 	}

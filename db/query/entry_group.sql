@@ -24,16 +24,22 @@ LIMIT 1;
 -- name: ListEntryGroups :many
 SELECT * 
 FROM entry_group
-ORDER BY id
-LIMIT $1
-OFFSET $2;
+ORDER BY id DESC
+LIMIT sqlc.arg('limit')
+OFFSET sqlc.arg('offset');
 
 -- name: UpdateEntryGroup :one
 UPDATE entry_group
-SET price = sqlc.narg(price)
-WHERE id = sqlc.narg(id)
+SET 
+quantity = COALESCE(sqlc.narg(quantity), quantity),
+action_type = COALESCE(sqlc.narg(action_type), action_type),
+pricing_type = COALESCE(sqlc.narg(pricing_type), pricing_type),
+price = COALESCE(sqlc.narg(price), price),
+currency = COALESCE(sqlc.narg(currency), currency),
+entry_group_status = COALESCE(sqlc.narg(entry_group_status), entry_group_status)
+WHERE id = sqlc.arg(id)
 RETURNING *;
 
 -- name: DeleteEntryGroup :exec
 DELETE FROM entry_group
-WHERE id = sqlc.narg(id);
+WHERE id = sqlc.arg(id);

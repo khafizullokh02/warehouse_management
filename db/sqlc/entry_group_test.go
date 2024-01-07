@@ -5,7 +5,9 @@ import (
 	"testing"
 	"time"
 
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"gopkg.in/guregu/null.v4/zero"
 )
 
 func createRandomEntryGroup(t *testing.T) EntryGroup {
@@ -72,4 +74,42 @@ func TestListEntryGroup(t *testing.T) {
 	for _, entryGroup := range entryGroups {
 		require.NotEmpty(t, entryGroup)
 	}
+}
+
+func TestUpdateEntryGroup(t *testing.T) {
+	entryGroup := createRandomEntryGroup(t)
+	arg := UpdateEntryGroupParams{
+		Quantity: zero.IntFrom(fake.Int64Between(1, 10)),
+		ActionType: zero.StringFrom(fake.RandomStringElement([]string{
+			string(ActionTypeBuy), string(ActionTypeSell)})),
+		PricingType: zero.StringFrom(fake.RandomStringElement([]string{
+			string(PricingTypeRetail), string(PricingTypeWholesale)})),
+		Price: zero.FloatFrom(fake.Float64(2, 10, 1000)),
+		Currency: zero.StringFrom(fake.RandomStringElement([]string{
+			string(CurrencyCodeUsd), string(CurrencyCodeUzs)})),
+		EntryGroupStatus: zero.StringFrom(fake.RandomStringElement([]string{
+			string(EntryGroupStatusAccepted), string(EntryGroupStatusDelivered)})),
+		ID: entryGroup.ID,
+	}
+
+	entryGroupDB, err := testStore.UpdateEntryGroup(context.Background(), arg)
+	require.NoError(t, err)
+	require.NotEmpty(t, entryGroupDB)
+	assert.Equal(t, int32(arg.Quantity.Int64), entryGroupDB.Quantity)
+	assert.Equal(t, arg.ActionType.String, string(entryGroupDB.ActionType))
+	assert.Equal(t, arg.PricingType.String, string(entryGroupDB.PricingType))
+	assert.Equal(t, arg.Price.Float64, entryGroupDB.Price)
+	assert.Equal(t, arg.Currency.String, string(entryGroupDB.Currency))
+	assert.Equal(t, arg.EntryGroupStatus.String, string(entryGroupDB.EntryGroupStatus))
+}
+
+func TestDeleteEntryGroup(t *testing.T) {
+	entryItem1 := createRandomEntryGroup(t)
+	err := testStore.DeleteEntryGroup(context.Background(), entryItem1.ID)
+	require.NoError(t, err)
+
+	entryItem2, err := testStore.GetEntryGroup(context.Background(), entryItem1.ID)
+	require.Error(t, err)
+	require.EqualError(t, err, ErrRecordNotFound.Error())
+	require.Empty(t, entryItem2)
 }

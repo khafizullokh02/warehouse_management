@@ -73,6 +73,24 @@ overrides:
           type: "String"
           package: "zero"
         nullable: true
+      - db_type: "entry_group_status"
+        go_type:
+          import: "gopkg.in/guregu/null.v4/zero"
+          type: "String"
+          package: "zero"
+        nullable: true
+      - db_type: "currency_code"
+        go_type:
+          import: "gopkg.in/guregu/null.v4/zero"
+          type: "String"
+          package: "zero"
+        nullable: true
+      - db_type: "pricing_type"
+        go_type:
+          import: "gopkg.in/guregu/null.v4/zero"
+          type: "String"
+          package: "zero"
+        nullable: true
 sql:
   - engine: "postgresql"
     queries: "db/query"

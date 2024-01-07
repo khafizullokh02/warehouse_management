@@ -19,8 +19,8 @@ LIMIT 1;
 SELECT *
 FROM accounts
 ORDER BY id DESC
-LIMIT $1
-OFFSET $2;
+LIMIT sqlc.arg('limit')
+OFFSET sqlc.arg('offset');
 
 -- name: UpdateAccount :one
 UPDATE accounts
