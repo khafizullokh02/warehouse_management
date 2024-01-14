@@ -6,7 +6,6 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/google/uuid"
 	db "github.com/khafizullokh02/warehouse_management/db/sqlc"
 	"github.com/khafizullokh02/warehouse_management/util"
 )
@@ -73,7 +72,7 @@ type loginUserRequest struct {
 }
 
 type loginUserResponse struct {
-	SessionID             uuid.UUID    `json:"session_id"`
+	SessionID             int32        `json:"session_id"`
 	AccessToken           string       `json:"access_token"`
 	AccessTokenExpiresAt  time.Time    `json:"access_token_expires_at"`
 	RefreshToken          string       `json:"refresh_token"`
@@ -104,8 +103,22 @@ func (server *Server) loginUser(ctx *gin.Context) {
 		return
 	}
 
+	session, err := server.store.CreateSession(ctx,
+		db.CreateSessionParams{
+			UserAgent: ctx.Request.UserAgent(),
+			ClientIp:  ctx.ClientIP(),
+			IsBlocked: false,
+			UserID:    user.ID,
+		},
+	)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
+	}
+
 	accessToken, accessPayload, err := server.tokenMaker.CreateToken(
 		user.ID,
+		session.ID,
 		user.Role,
 		server.config.AccessTokenDuration,
 	)
@@ -116,22 +129,10 @@ func (server *Server) loginUser(ctx *gin.Context) {
 
 	refreshToken, refreshPayload, err := server.tokenMaker.CreateToken(
 		user.ID,
+		session.ID,
 		user.Role,
 		server.config.RefreshTokenDuration,
 	)
-	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
-		return
-	}
-	session, err := server.store.CreateSession(ctx, db.CreateSessionParams{
-		ID:           refreshPayload.UserID,
-		Name:         user.Name,
-		RefreshToken: refreshToken,
-		UserAgent:    ctx.Request.UserAgent(),
-		ClientIp:     ctx.ClientIP(),
-		IsBlocked:    false,
-		ExpiresAt:    refreshPayload.ExpiredAt,
-	})
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
 		return
