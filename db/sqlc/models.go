@@ -288,8 +288,20 @@ type Product struct {
 	CreatedAt      pgtype.Timestamp `json:"created_at"`
 }
 
+type Session struct {
+	ID           int32            `json:"id"`
+	Name         string           `json:"name"`
+	RefreshToken string           `json:"refresh_token"`
+	UserAgent    string           `json:"user_agent"`
+	ClientIp     string           `json:"client_ip"`
+	IsBlocked    bool             `json:"is_blocked"`
+	ExpiresAt    pgtype.Timestamp `json:"expires_at"`
+	CreatedAt    pgtype.Timestamp `json:"created_at"`
+}
+
 type User struct {
 	ID        int32            `json:"id"`
+	Role      string           `json:"role"`
 	Name      string           `json:"name"`
 	Email     string           `json:"email"`
 	Password  string           `json:"password"`

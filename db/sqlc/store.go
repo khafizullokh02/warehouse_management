@@ -12,8 +12,8 @@ type Store interface {
 }
 
 type SQLStore struct {
-	*Queries
 	DB *pgxpool.Pool
+	*Queries
 }
 
 func NewStore(ctx context.Context, psqlURI string) Store {

@@ -21,7 +21,7 @@ INSERT INTO users (
   $1,
   $2,
   $3
-) RETURNING id, name, email, password, created_at, updated_at, deleted_at
+) RETURNING id, role, name, email, password, created_at, updated_at, deleted_at
 `
 
 type CreateUserParams struct {
@@ -35,6 +35,7 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, e
 	var i User
 	err := row.Scan(
 		&i.ID,
+		&i.Role,
 		&i.Name,
 		&i.Email,
 		&i.Password,
@@ -56,7 +57,7 @@ func (q *Queries) DeleteUser(ctx context.Context, id int32) error {
 }
 
 const getUser = `-- name: GetUser :one
-SELECT id, name, email, password, created_at, updated_at, deleted_at 
+SELECT id, role, name, email, password, created_at, updated_at, deleted_at 
 FROM users
 WHERE id = $1 
 LIMIT 1
@@ -67,6 +68,7 @@ func (q *Queries) GetUser(ctx context.Context, id int32) (User, error) {
 	var i User
 	err := row.Scan(
 		&i.ID,
+		&i.Role,
 		&i.Name,
 		&i.Email,
 		&i.Password,
@@ -78,7 +80,7 @@ func (q *Queries) GetUser(ctx context.Context, id int32) (User, error) {
 }
 
 const listUsers = `-- name: ListUsers :many
-SELECT id, name, email, password, created_at, updated_at, deleted_at 
+SELECT id, role, name, email, password, created_at, updated_at, deleted_at 
 FROM users
 WHERE name = $1
 ORDER BY id
@@ -103,6 +105,7 @@ func (q *Queries) ListUsers(ctx context.Context, arg ListUsersParams) ([]User, e
 		var i User
 		if err := rows.Scan(
 			&i.ID,
+			&i.Role,
 			&i.Name,
 			&i.Email,
 			&i.Password,
@@ -130,7 +133,7 @@ created_at = COALESCE($4, created_at),
 updated_at = COALESCE($5, updated_at),
 deleted_at = COALESCE($6, deleted_at)
 WHERE id = $7
-RETURNING id, name, email, password, created_at, updated_at, deleted_at
+RETURNING id, role, name, email, password, created_at, updated_at, deleted_at
 `
 
 type UpdateUserParams struct {
@@ -156,6 +159,7 @@ func (q *Queries) UpdateUser(ctx context.Context, arg UpdateUserParams) (User, e
 	var i User
 	err := row.Scan(
 		&i.ID,
+		&i.Role,
 		&i.Name,
 		&i.Email,
 		&i.Password,

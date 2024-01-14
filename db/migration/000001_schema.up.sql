@@ -41,6 +41,7 @@ CREATE TYPE "currency_code" AS ENUM (
 
 CREATE TABLE "users" (
   "id" serial PRIMARY KEY,
+  "role" varchar NOT NULL,
   "name" varchar NOT NULL,
   "email" varchar NOT NULL,
   "password" varchar NOT NULL,
@@ -99,6 +100,19 @@ CREATE TABLE "agreement_forms" (
   "wholesale_price" float NOT NULL DEFAULT 0,
   "retail_price" float NOT NULL DEFAULT 0
 );
+
+CREATE TABLE "sessions" (
+  "id" serial PRIMARY KEY,
+  "name" varchar NOT NULL,
+  "refresh_token" varchar NOT NULL,
+  "user_agent" varchar NOT NULL,
+  "client_ip" varchar NOT NULL,
+  "is_blocked" boolean NOT NULL DEFAULT false,
+  "expires_at" timestamp NOT NULL,
+  "created_at" timestamp NOT NULL DEFAULT (now())
+);
+
+ALTER TABLE "sessions" ADD FOREIGN KEY ("name") REFERENCES "users" ("name");
 
 ALTER TABLE "accounts" ADD FOREIGN KEY ("user_id") REFERENCES "users" ("id") ON DELETE CASCADE;
 

@@ -14,6 +14,7 @@ type Querier interface {
 	CreateEntryGroup(ctx context.Context, arg CreateEntryGroupParams) (EntryGroup, error)
 	CreateEntryItem(ctx context.Context, arg CreateEntryItemParams) (EntryItem, error)
 	CreateProduct(ctx context.Context, arg CreateProductParams) (Product, error)
+	CreateSession(ctx context.Context, arg CreateSessionParams) (Session, error)
 	CreateUser(ctx context.Context, arg CreateUserParams) (User, error)
 	DeleteAccount(ctx context.Context, id int32) error
 	DeleteAgreementForm(ctx context.Context, id int32) error
@@ -26,6 +27,7 @@ type Querier interface {
 	GetEntryGroup(ctx context.Context, id int32) (EntryGroup, error)
 	GetEntryItem(ctx context.Context, id int32) (EntryItem, error)
 	GetProduct(ctx context.Context, id int32) (Product, error)
+	GetSession(ctx context.Context, id int32) (Session, error)
 	GetUser(ctx context.Context, id int32) (User, error)
 	ListAccounts(ctx context.Context, arg ListAccountsParams) ([]Account, error)
 	ListAgreementForms(ctx context.Context, arg ListAgreementFormsParams) ([]AgreementForm, error)
