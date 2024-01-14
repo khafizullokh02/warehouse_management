@@ -22,7 +22,7 @@ func createRandomUser(t *testing.T) User {
 	require.Equal(t, arg.Name, user.Name)
 	require.Equal(t, arg.Email, user.Email)
 	require.Equal(t, arg.Password, user.Password)
-	require.True(t, user.UpdatedAt.Valid) //why
+	require.True(t, user.UpdatedAt.Valid)
 	require.NotZero(t, user.CreatedAt)
 
 	return user
@@ -96,79 +96,5 @@ func TestUpdateUser(t *testing.T) {
 	require.NotEmpty(t, user2)
 	
 	require.Equal(t, user1, user2)
-	require.WithinDuration(t, user1.CreatedAt.Time, user2.CreatedAt.Time, time.Second) // there was an error when I wanted to do: product.CreatedAt
+	require.WithinDuration(t, user1.CreatedAt.Time, user2.CreatedAt.Time, time.Second)
 }
-
-// func TestUpdateUser(t *testing.T) {
-// 	user := createRandomUser(t)
-
-// 	updatingProperties := map[string]any{
-// 		"name":     fake.Food().Vegetable(),
-// 		"email":    fake.Internet().Email(),
-// 		"password": "secret",
-// 	}
-
-// 	tests := []struct {
-// 		name string
-// 		args map[string]any
-// 	}{
-// 		{
-// 			name: "update name",
-// 			args: map[string]any{
-// 				"name": updatingProperties["name"],
-// 				"id":   user.ID,
-// 			},
-// 		},
-// 		{
-// 			name: "update email",
-// 			args: map[string]any{
-// 				"email": updatingProperties["email"],
-// 				"id":    user.ID,
-// 			},
-// 		},
-// 		{
-// 			name: "update all",
-// 			args: map[string]any{
-// 				"name": updatingProperties["name"],
-// 				"email": updatingProperties["email"],
-// 				"password": updatingProperties["password"],
-// 			},
-// 		},
-// 	}
-
-// 	for _, tt := range tests {
-// 		t.Run(tt.name, func(t *testing.T) {
-// 			dbPayload := covnertMapToUpdateUserParams(t, tt.args)
-// 			got, err := testStore.UpdateUser(context.Background(), dbPayload)
-// 			require.NoError(t, err, "UpdateUser() error = %v", err)
-
-// 			want := makeUpdateUserResp(t, &user, tt.args)
-// 			require.Equal(t, got.Name, want.Name)
-// 			require.Equal(t, got.Email, want.Email)
-// 			require.Equal(t, got.Password, want.Password)
-
-// 			require.Equal(t, user, got, "UpdateUser() got = %v, want %v", got, want)
-// 		})
-// 	}
-// }
-
-// func covnertMapToUpdateUserParams(t *testing.T, args map[string]any) UpdateUserParams {
-// 	bytes, err := json.Marshal(args)
-// 	require.NoError(t, err)
-
-// 	var updateUserParams UpdateUserParams
-// 	err = json.Unmarshal(bytes, &updateUserParams)
-// 	require.NoError(t, err)
-
-// 	return updateUserParams
-// }
-
-// func makeUpdateUserResp(t *testing.T, user *User, args map[string]any) *User {
-// 	bytes, err := json.Marshal(args)
-// 	require.NoError(t, err)
-
-// 	err = json.Unmarshal(bytes, &user)
-// 	require.NoError(t, err)
-
-// 	return user
-// }

@@ -126,13 +126,6 @@ func (server *Server) loginUser(ctx *gin.Context) {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
 		return
 	}
-
-	refreshToken, refreshPayload, err := server.tokenMaker.CreateToken(
-		user.ID,
-		session.ID,
-		user.Role,
-		server.config.RefreshTokenDuration,
-	)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
 		return
@@ -142,8 +135,6 @@ func (server *Server) loginUser(ctx *gin.Context) {
 		SessionID:             session.ID,
 		AccessToken:           accessToken,
 		AccessTokenExpiresAt:  accessPayload.ExpiredAt,
-		RefreshToken:          refreshToken,
-		RefreshTokenExpiresAt: refreshPayload.ExpiredAt,
 		User:                  newUserResponse(user),
 	}
 	ctx.JSON(http.StatusOK, rsp)
