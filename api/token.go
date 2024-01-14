@@ -54,14 +54,9 @@ func (server *Server) renewAccessToken(ctx *gin.Context) {
 		return
 	}
 
-	if session.RefreshToken != req.RefreshToken {
-		err := fmt.Errorf("expired session")
-		ctx.JSON(http.StatusUnauthorized, errorResponse(err))
-		return
-	}
-
 	accessToken, accessPayload, err := server.tokenMaker.CreateToken(
 		refreshPayload.UserID,
+		session.ID,
 		refreshPayload.Role,
 		server.config.AccessTokenDuration,
 	)
@@ -71,8 +66,9 @@ func (server *Server) renewAccessToken(ctx *gin.Context) {
 	}
 
 	rsp := renewAccessTokenResponse{
-		AccessToken: accessToken,
+		AccessToken:          accessToken,
 		AccessTokenExpiredAt: accessPayload.ExpiredAt,
 	}
+
 	ctx.JSON(http.StatusOK, rsp)
 }
