@@ -8,10 +8,10 @@ import (
 )
 
 type Server struct {
-	config util.Config
-	store  db.Store
+	config     util.Config
+	store      db.Store
 	tokenMaker token.Maker
-	router *gin.Engine
+	router     *gin.Engine
 }
 
 func NewServer(store db.Store, config util.Config) *Server {
@@ -42,4 +42,3 @@ func (server *Server) Start(address string) error {
 func errorResponse(err error) gin.H {
 	return gin.H{"error": err.Error()}
 }
-
