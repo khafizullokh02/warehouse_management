@@ -7,66 +7,53 @@ package db
 
 import (
 	"context"
-
-	"github.com/jackc/pgx/v5/pgtype"
 )
 
 const createSession = `-- name: CreateSession :one
 INSERT INTO sessions (
-  id,
-  name,
-  refresh_token,
-  user_agent,
-  client_ip,
-  is_blocked,
-  expires_at
-) VALUES (
-  $1,
-  $2,
-  $3,
-  $4,
-  $5,
-  $6,
-  $7
-) RETURNING id, name, refresh_token, user_agent, client_ip, is_blocked, expires_at, created_at
+    user_agent,
+    client_ip,
+    is_blocked,
+    user_id
+  )
+VALUES (
+    $1,
+    $2,
+    $3,
+    $4
+  )
+RETURNING id, user_agent, client_ip, user_id, is_blocked, created_at
 `
 
 type CreateSessionParams struct {
-	ID           int32            `json:"id"`
-	Name         string           `json:"name"`
-	RefreshToken string           `json:"refresh_token"`
-	UserAgent    string           `json:"user_agent"`
-	ClientIp     string           `json:"client_ip"`
-	IsBlocked    bool             `json:"is_blocked"`
-	ExpiresAt    pgtype.Timestamp `json:"expires_at"`
+	UserAgent string `json:"user_agent"`
+	ClientIp  string `json:"client_ip"`
+	IsBlocked bool   `json:"is_blocked"`
+	UserID    string `json:"user_id"`
 }
 
 func (q *Queries) CreateSession(ctx context.Context, arg CreateSessionParams) (Session, error) {
 	row := q.db.QueryRow(ctx, createSession,
-		arg.ID,
-		arg.Name,
-		arg.RefreshToken,
 		arg.UserAgent,
 		arg.ClientIp,
 		arg.IsBlocked,
-		arg.ExpiresAt,
+		arg.UserID,
 	)
 	var i Session
 	err := row.Scan(
 		&i.ID,
-		&i.Name,
-		&i.RefreshToken,
 		&i.UserAgent,
 		&i.ClientIp,
+		&i.UserID,
 		&i.IsBlocked,
-		&i.ExpiresAt,
 		&i.CreatedAt,
 	)
 	return i, err
 }
 
 const getSession = `-- name: GetSession :one
-SELECT id, name, refresh_token, user_agent, client_ip, is_blocked, expires_at, created_at FROM sessions
+SELECT id, user_agent, client_ip, user_id, is_blocked, created_at
+FROM sessions
 WHERE id = $1
 LIMIT 1
 `
@@ -76,12 +63,10 @@ func (q *Queries) GetSession(ctx context.Context, id int32) (Session, error) {
 	var i Session
 	err := row.Scan(
 		&i.ID,
-		&i.Name,
-		&i.RefreshToken,
 		&i.UserAgent,
 		&i.ClientIp,
+		&i.UserID,
 		&i.IsBlocked,
-		&i.ExpiresAt,
 		&i.CreatedAt,
 	)
 	return i, err

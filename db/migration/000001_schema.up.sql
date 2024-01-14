@@ -6,11 +6,7 @@ CREATE TYPE "action_type" AS ENUM (
   'none'
 );
 
-CREATE TYPE "pricing_type" AS ENUM (
-  'retail',
-  'wholesale',
-  'none'
-);
+CREATE TYPE "pricing_type" AS ENUM ('retail', 'wholesale', 'none');
 
 CREATE TYPE "entry_group_status" AS ENUM (
   'initial',
@@ -28,16 +24,11 @@ CREATE TYPE "agreement_forms_status" AS ENUM (
   'failed',
   'rejected',
   'done',
-  'none'
+  'none',
   ''
 );
 
-CREATE TYPE "currency_code" AS ENUM (
-  'usd',
-  'uzs',
-  'u.e',
-  'none'
-);
+CREATE TYPE "currency_code" AS ENUM ('usd', 'uzs', 'u.e', 'none');
 
 CREATE TABLE "users" (
   "id" serial PRIMARY KEY,
@@ -45,16 +36,16 @@ CREATE TABLE "users" (
   "name" varchar NOT NULL,
   "email" varchar NOT NULL,
   "password" varchar NOT NULL,
-  "created_at" timestamp NOT NULL DEFAULT (now()),
-  "updated_at" timestamp NOT NULL DEFAULT (now()),
-  "deleted_at" timestamp DEFAULT null
+  "created_at" timestamp NOT NULL DEFAULT (NOW()),
+  "updated_at" timestamp NOT NULL DEFAULT (NOW()),
+  "deleted_at" timestamp DEFAULT NULL
 );
 
 CREATE TABLE "accounts" (
   "id" serial PRIMARY KEY,
   "user_id" integer NOT NULL,
   "name" varchar NOT NULL,
-  "created_at" timestamp NOT NULL DEFAULT (now())
+  "created_at" timestamp NOT NULL DEFAULT (NOW())
 );
 
 CREATE TABLE "products" (
@@ -67,7 +58,7 @@ CREATE TABLE "products" (
   "wholesale_price" float NOT NULL,
   "retail_price" float NOT NULL,
   "discount" float NOT NULL DEFAULT 0,
-  "created_at" timestamp NOT NULL DEFAULT (now())
+  "created_at" timestamp NOT NULL DEFAULT (NOW())
 );
 
 CREATE TABLE "entry_group" (
@@ -78,9 +69,9 @@ CREATE TABLE "entry_group" (
   "price" float NOT NULL,
   "currency" currency_code NOT NULL DEFAULT 'none',
   "entry_group_status" entry_group_status NOT NULL DEFAULT 'none',
-  "created_at" timestamp NOT NULL DEFAULT (now()),
-  "updated_at" timestamp NOT NULL DEFAULT (now()),
-  "deleted_at" timestamp DEFAULT null
+  "created_at" timestamp NOT NULL DEFAULT (NOW()),
+  "updated_at" timestamp NOT NULL DEFAULT (NOW()),
+  "deleted_at" timestamp DEFAULT NULL
 );
 
 CREATE TABLE "entry_items" (
@@ -88,14 +79,14 @@ CREATE TABLE "entry_items" (
   "product_id" integer NOT NULL,
   "entry_group_id" integer NOT NULL,
   "sup_code" varchar NOT NULL,
-  "created_at" timestamp NOT NULL DEFAULT (now())
+  "created_at" timestamp NOT NULL DEFAULT (NOW())
 );
 
 CREATE TABLE "agreement_forms" (
   "id" serial PRIMARY KEY,
   "from_account" integer NOT NULL,
   "to_account" integer NOT NULL,
-  "product_ids" integer[] NOT NULL,
+  "product_ids" integer [] NOT NULL,
   "action_type_for_agreement" action_type NOT NULL DEFAULT 'none',
   "wholesale_price" float NOT NULL DEFAULT 0,
   "retail_price" float NOT NULL DEFAULT 0
@@ -103,23 +94,27 @@ CREATE TABLE "agreement_forms" (
 
 CREATE TABLE "sessions" (
   "id" serial PRIMARY KEY,
-  "name" varchar NOT NULL,
-  "refresh_token" varchar NOT NULL,
   "user_agent" varchar NOT NULL,
   "client_ip" varchar NOT NULL,
+  "user_id" varchar NOT NULL,
   "is_blocked" boolean NOT NULL DEFAULT false,
-  "expires_at" timestamp NOT NULL,
-  "created_at" timestamp NOT NULL DEFAULT (now())
+  "created_at" timestamp NOT NULL DEFAULT (NOW())
 );
 
-ALTER TABLE "sessions" ADD FOREIGN KEY ("name") REFERENCES "users" ("name");
+ALTER TABLE "sessions"
+ADD FOREIGN KEY ("name") REFERENCES "users" ("name");
 
-ALTER TABLE "accounts" ADD FOREIGN KEY ("user_id") REFERENCES "users" ("id") ON DELETE CASCADE;
+ALTER TABLE "accounts"
+ADD FOREIGN KEY ("user_id") REFERENCES "users" ("id") ON DELETE CASCADE;
 
-ALTER TABLE "entry_items" ADD FOREIGN KEY ("product_id") REFERENCES "products" ("id") ON DELETE CASCADE;
+ALTER TABLE "entry_items"
+ADD FOREIGN KEY ("product_id") REFERENCES "products" ("id") ON DELETE CASCADE;
 
-ALTER TABLE "entry_items" ADD FOREIGN KEY ("entry_group_id") REFERENCES "entry_group" ("id") ON DELETE CASCADE;
+ALTER TABLE "entry_items"
+ADD FOREIGN KEY ("entry_group_id") REFERENCES "entry_group" ("id") ON DELETE CASCADE;
 
-ALTER TABLE "agreement_forms" ADD FOREIGN KEY ("from_account") REFERENCES "accounts" ("id") ON DELETE CASCADE;
+ALTER TABLE "agreement_forms"
+ADD FOREIGN KEY ("from_account") REFERENCES "accounts" ("id") ON DELETE CASCADE;
 
-ALTER TABLE "agreement_forms" ADD FOREIGN KEY ("to_account") REFERENCES "accounts" ("id") ON DELETE CASCADE;
+ALTER TABLE "agreement_forms"
+ADD FOREIGN KEY ("to_account") REFERENCES "accounts" ("id") ON DELETE CASCADE;

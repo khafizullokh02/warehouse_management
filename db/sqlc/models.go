@@ -67,6 +67,7 @@ const (
 	AgreementFormsStatusRejected   AgreementFormsStatus = "rejected"
 	AgreementFormsStatusDone       AgreementFormsStatus = "done"
 	AgreementFormsStatusNone       AgreementFormsStatus = "none"
+	AgreementFormsStatusValue7     AgreementFormsStatus = ""
 )
 
 func (e *AgreementFormsStatus) Scan(src interface{}) error {
@@ -289,14 +290,12 @@ type Product struct {
 }
 
 type Session struct {
-	ID           int32            `json:"id"`
-	Name         string           `json:"name"`
-	RefreshToken string           `json:"refresh_token"`
-	UserAgent    string           `json:"user_agent"`
-	ClientIp     string           `json:"client_ip"`
-	IsBlocked    bool             `json:"is_blocked"`
-	ExpiresAt    pgtype.Timestamp `json:"expires_at"`
-	CreatedAt    pgtype.Timestamp `json:"created_at"`
+	ID        int32            `json:"id"`
+	UserAgent string           `json:"user_agent"`
+	ClientIp  string           `json:"client_ip"`
+	UserID    string           `json:"user_id"`
+	IsBlocked bool             `json:"is_blocked"`
+	CreatedAt pgtype.Timestamp `json:"created_at"`
 }
 
 type User struct {
