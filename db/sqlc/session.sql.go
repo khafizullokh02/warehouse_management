@@ -29,7 +29,7 @@ type CreateSessionParams struct {
 	UserAgent string `json:"user_agent"`
 	ClientIp  string `json:"client_ip"`
 	IsBlocked bool   `json:"is_blocked"`
-	UserID    string `json:"user_id"`
+	UserID    int32  `json:"user_id"`
 }
 
 func (q *Queries) CreateSession(ctx context.Context, arg CreateSessionParams) (Session, error) {

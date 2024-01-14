@@ -293,7 +293,7 @@ type Session struct {
 	ID        int32            `json:"id"`
 	UserAgent string           `json:"user_agent"`
 	ClientIp  string           `json:"client_ip"`
-	UserID    string           `json:"user_id"`
+	UserID    int32            `json:"user_id"`
 	IsBlocked bool             `json:"is_blocked"`
 	CreatedAt pgtype.Timestamp `json:"created_at"`
 }

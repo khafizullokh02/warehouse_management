@@ -96,7 +96,7 @@ CREATE TABLE "sessions" (
   "id" serial PRIMARY KEY,
   "user_agent" varchar NOT NULL,
   "client_ip" varchar NOT NULL,
-  "user_id" varchar NOT NULL,
+  "user_id" int NOT NULL,
   "is_blocked" boolean NOT NULL DEFAULT false,
   "created_at" timestamp NOT NULL DEFAULT (NOW())
 );
