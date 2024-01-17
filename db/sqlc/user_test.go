@@ -11,6 +11,7 @@ import (
 func createRandomUser(t *testing.T) User {
 	arg := CreateUserParams{
 		Name:     fake.Food().Vegetable(),
+		Role:     "client",
 		Email:    fake.Internet().Email(),
 		Password: "secret",
 	}
@@ -63,8 +64,8 @@ func TestListUser(t *testing.T) {
 	}
 
 	arg := ListUsersParams{
-		Name: lastUser.Name,
-		Limit: 5,
+		Name:   lastUser.Name,
+		Limit:  5,
 		Offset: 0,
 	}
 
@@ -82,19 +83,14 @@ func TestUpdateUser(t *testing.T) {
 	user1 := createRandomUser(t)
 
 	arg := UpdateUserParams{
-		ID: user1.ID,
-		Name: user1.Name,
-		Email: user1.Email,
-		Password: user1.Password,
-		CreatedAt: user1.CreatedAt,
-		UpdatedAt: user1.UpdatedAt,
-		DeletedAt: user1.DeletedAt,
+		ID:        user1.ID,
+		Password:  user1.Password,
 	}
 
 	user2, err := testStore.UpdateUser(context.Background(), arg)
 	require.NoError(t, err)
 	require.NotEmpty(t, user2)
-	
+
 	require.Equal(t, user1, user2)
 	require.WithinDuration(t, user1.CreatedAt.Time, user2.CreatedAt.Time, time.Second)
 }

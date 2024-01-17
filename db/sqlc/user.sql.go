@@ -7,31 +7,36 @@ package db
 
 import (
 	"context"
-
-	"github.com/jackc/pgx/v5/pgtype"
-	zero "gopkg.in/guregu/null.v4/zero"
 )
 
 const createUser = `-- name: CreateUser :one
 INSERT INTO users (
   name,
+  role,
   email,
   password
 ) VALUES (
   $1,
   $2,
-  $3
+  $3,
+  $4
 ) RETURNING id, role, name, email, password, created_at, updated_at, deleted_at
 `
 
 type CreateUserParams struct {
 	Name     string `json:"name"`
+	Role     string `json:"role"`
 	Email    string `json:"email"`
 	Password string `json:"password"`
 }
 
 func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, error) {
-	row := q.db.QueryRow(ctx, createUser, arg.Name, arg.Email, arg.Password)
+	row := q.db.QueryRow(ctx, createUser,
+		arg.Name,
+		arg.Role,
+		arg.Email,
+		arg.Password,
+	)
 	var i User
 	err := row.Scan(
 		&i.ID,
@@ -126,36 +131,18 @@ func (q *Queries) ListUsers(ctx context.Context, arg ListUsersParams) ([]User, e
 const updateUser = `-- name: UpdateUser :one
 UPDATE users
 SET
-name = COALESCE($1, name),
-email = COALESCE($2, email),
-password = COALESCE($3, password),
-created_at = COALESCE($4, created_at),
-updated_at = COALESCE($5, updated_at),
-deleted_at = COALESCE($6, deleted_at)
-WHERE id = $7
+password = COALESCE($1, password)
+WHERE id = $2
 RETURNING id, role, name, email, password, created_at, updated_at, deleted_at
 `
 
 type UpdateUserParams struct {
-	Name      string           `json:"name"`
-	Email     string           `json:"email"`
-	Password  string           `json:"password"`
-	CreatedAt pgtype.Timestamp `json:"created_at"`
-	UpdatedAt pgtype.Timestamp `json:"updated_at"`
-	DeletedAt zero.Time        `json:"deleted_at"`
-	ID        int32            `json:"id"`
+	Password string `json:"password"`
+	ID       int32  `json:"id"`
 }
 
 func (q *Queries) UpdateUser(ctx context.Context, arg UpdateUserParams) (User, error) {
-	row := q.db.QueryRow(ctx, updateUser,
-		arg.Name,
-		arg.Email,
-		arg.Password,
-		arg.CreatedAt,
-		arg.UpdatedAt,
-		arg.DeletedAt,
-		arg.ID,
-	)
+	row := q.db.QueryRow(ctx, updateUser, arg.Password, arg.ID)
 	var i User
 	err := row.Scan(
 		&i.ID,
