@@ -23,7 +23,10 @@ func NewServer(store db.Store, config util.Config) *Server {
 	router := gin.Default()
 
 	router.POST("/users", server.createUser)
+	router.GET("user/:id", server.getUser)
+	router.PUT("users/update_password", server.updateUserPassword)
 	router.POST("/users/login", server.loginUser)
+	router.GET("/users", server.listUsers)
 	router.POST("tokens/renew_access", server.renewAccessToken)
 
 	router.POST("/accounts", server.createAccount)

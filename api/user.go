@@ -47,6 +47,7 @@ func (server *Server) createUser(ctx *gin.Context) {
 
 	arg := db.CreateUserParams{
 		Name:     req.Name,
+		Role:     "client",
 		Email:    req.Email,
 		Password: password,
 	}
@@ -63,6 +64,84 @@ func (server *Server) createUser(ctx *gin.Context) {
 
 	rsp := newUserResponse(user)
 	ctx.JSON(http.StatusOK, rsp)
+}
+
+type getUserRequest struct {
+	ID int32 `uri:"id" binding:"required,min=1"`
+}
+
+func (server *Server) getUser(ctx *gin.Context) {
+	var req getUserRequest
+	if err := ctx.ShouldBindUri(&req);	err != nil {
+		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		return
+	}
+
+	user, err := server.store.GetUser(ctx, req.ID)
+	if err != nil {
+		if errors.Is(err, db.ErrRecordNotFound) {
+			ctx.JSON(http.StatusNotFound, errorResponse(err))
+			return
+		}
+
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
+	}
+
+	ctx.JSON(http.StatusOK, user)
+}
+
+type updateUserPasswordRequest struct {
+	ID int32 `uri:"id" binding:"required,min=1"`
+	Password string `json:"password" binding:"required,min=6"`
+}
+
+func (server *Server) updateUserPassword(ctx *gin.Context) {
+	var req updateUserPasswordRequest
+	if err := ctx.ShouldBindUri(&req); err != nil {
+		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		return
+	}
+	arg := db.UpdateUserParams{
+		ID: req.ID,
+		Password: req.Password,
+	}
+
+	user, err := server.store.UpdateUser(ctx, arg)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
+	}
+
+	ctx.JSON(http.StatusOK, user)
+}
+
+type listUserRequest struct {
+	Name     string `json:"name" binding:"required,alphanum"`
+	PageID int32 `from:"page_id" binding:"required,min=1"`
+	PageSize int32 `from:"page_size" binfing:"required,min=5,max=10"`
+}
+
+func (server *Server) listUsers(ctx *gin.Context) {
+	var req listUserRequest
+	if err := ctx.ShouldBindQuery(&req); err != nil {
+		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		return
+	}
+
+	arg := db.ListUsersParams{
+		Name: req.Name,
+		Limit: req.PageID,
+		Offset: req.PageSize,
+	}
+
+	users, err := server.store.ListUsers(ctx, arg)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
+	}
+
+	ctx.JSON(http.StatusOK, users)
 }
 
 type loginUserRequest struct {
@@ -132,10 +211,10 @@ func (server *Server) loginUser(ctx *gin.Context) {
 	}
 
 	rsp := loginUserResponse{
-		SessionID:             session.ID,
-		AccessToken:           accessToken,
-		AccessTokenExpiresAt:  accessPayload.ExpiredAt,
-		User:                  newUserResponse(user),
+		SessionID:            session.ID,
+		AccessToken:          accessToken,
+		AccessTokenExpiresAt: accessPayload.ExpiredAt,
+		User:                 newUserResponse(user),
 	}
 	ctx.JSON(http.StatusOK, rsp)
 }
