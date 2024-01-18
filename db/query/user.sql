@@ -28,6 +28,7 @@ OFFSET $3;
 -- name: UpdateUser :one
 UPDATE users
 SET
+name = COALESCE(sqlc.arg(name), name),
 password = COALESCE(sqlc.arg(password), password)
 WHERE id = sqlc.arg(id)
 RETURNING *;
