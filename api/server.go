@@ -1,6 +1,9 @@
 package api
 
 import (
+	"fmt"
+	"net/http"
+
 	"github.com/gin-gonic/gin"
 	db "github.com/khafizullokh02/warehouse_management/db/sqlc"
 	"github.com/khafizullokh02/warehouse_management/token"
@@ -14,28 +17,39 @@ type Server struct {
 	router     *gin.Engine
 }
 
-func NewServer(store db.Store, config util.Config) *Server {
+func NewServer(config util.Config, store db.Store) (*Server, error) {
 	tokenMaker, err := token.NewPasetoMaker(config.TokenSymmetricKey)
 	if err != nil {
-		panic(err)
+		return nil, fmt.Errorf("cannot create token maker: %w", err)
 	}
-	server := &Server{store: store}
+
+	server := &Server{
+		config:     config,
+		store:      store,
+		tokenMaker: tokenMaker,
+	}
+
+	server.setupRouter()
+	return server, nil
+}
+func (server *Server) setupRouter() {
 	router := gin.Default()
 
 	router.POST("/users", server.createUser)
-	router.GET("user/:id", server.getUser)
-	router.PUT("users/update_password", server.updateUserPassword)
 	router.POST("/users/login", server.loginUser)
-	router.GET("/users", server.listUsers)
-	router.POST("tokens/renew_access", server.renewAccessToken)
+	router.POST("/tokens/renew_access", func(ctx *gin.Context) {
+		ctx.JSON(http.StatusOK, gin.H{"msg": "ok"})
+	})
 
-	router.POST("/accounts", server.createAccount)
-	router.GET("/account/:id", server.getAccount)
-	router.GET("/accounts", server.listAccounts)
+	authRoutes := router.Group("/").Use(authMiddleware(server.tokenMaker))
+	authRoutes.GET("/user/:id", server.getUser)
+	authRoutes.GET("/users", server.listUsers)
+	authRoutes.PUT("users/update", server.updateUser)
+	authRoutes.POST("/accounts", server.createAccount)
+	authRoutes.GET("/account/:id", server.getAccount)
+	authRoutes.GET("/accounts", server.listAccounts)
 
 	server.router = router
-	server.tokenMaker = tokenMaker
-	return server
 }
 
 func (server *Server) Start(address string) error {

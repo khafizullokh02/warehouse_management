@@ -72,7 +72,7 @@ type getUserRequest struct {
 
 func (server *Server) getUser(ctx *gin.Context) {
 	var req getUserRequest
-	if err := ctx.ShouldBindUri(&req);	err != nil {
+	if err := ctx.ShouldBindUri(&req); err != nil {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
 	}
@@ -91,20 +91,33 @@ func (server *Server) getUser(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, user)
 }
 
-type updateUserPasswordRequest struct {
-	ID int32 `uri:"id" binding:"required,min=1"`
+type updateUserRequest struct {
+	ID       int32  `uri:"id" binding:"required,min=1"`
+	Name     string `json:"name" binding:"required,alphanum"`
 	Password string `json:"password" binding:"required,min=6"`
 }
 
-func (server *Server) updateUserPassword(ctx *gin.Context) {
-	var req updateUserPasswordRequest
+func (server *Server) updateUser(ctx *gin.Context) {
+	var req updateUserRequest
 	if err := ctx.ShouldBindUri(&req); err != nil {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
 	}
+
+	if req.Password != "" {
+		password, err := util.HashPassword(req.Password)
+		if err != nil {
+			ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+			return
+		}
+
+		req.Password = password
+	}
+
 	arg := db.UpdateUserParams{
-		ID: req.ID,
+		Name:     req.Name,
 		Password: req.Password,
+		ID:       req.ID,
 	}
 
 	user, err := server.store.UpdateUser(ctx, arg)
@@ -118,8 +131,8 @@ func (server *Server) updateUserPassword(ctx *gin.Context) {
 
 type listUserRequest struct {
 	Name     string `json:"name" binding:"required,alphanum"`
-	PageID int32 `from:"page_id" binding:"required,min=1"`
-	PageSize int32 `from:"page_size" binfing:"required,min=5,max=10"`
+	PageID   int32  `from:"page_id" binding:"required,min=1"`
+	PageSize int32  `from:"page_size" binfing:"required,min=5,max=10"`
 }
 
 func (server *Server) listUsers(ctx *gin.Context) {
@@ -130,8 +143,8 @@ func (server *Server) listUsers(ctx *gin.Context) {
 	}
 
 	arg := db.ListUsersParams{
-		Name: req.Name,
-		Limit: req.PageID,
+		Name:   req.Name,
+		Limit:  req.PageID,
 		Offset: req.PageSize,
 	}
 
