@@ -54,7 +54,7 @@ func (server *Server) renewAccessToken(ctx *gin.Context) {
 		return
 	}
 
-	accessToken, accessPayload, err := server.tokenMaker.CreateToken(
+	accessToken, err := server.tokenMaker.CreateToken(
 		refreshPayload.UserID,
 		session.ID,
 		refreshPayload.Role,
@@ -67,7 +67,7 @@ func (server *Server) renewAccessToken(ctx *gin.Context) {
 
 	rsp := renewAccessTokenResponse{
 		AccessToken:          accessToken,
-		AccessTokenExpiredAt: accessPayload.ExpiredAt,
+		AccessTokenExpiredAt: time.Now().Add(server.config.AccessTokenDuration),
 	}
 
 	ctx.JSON(http.StatusOK, rsp)

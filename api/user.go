@@ -143,7 +143,6 @@ func (server *Server) listUsers(ctx *gin.Context) {
 	}
 
 	arg := db.ListUsersParams{
-		Name:   req.Name,
 		Limit:  req.PageID,
 		Offset: req.PageSize,
 	}
@@ -158,8 +157,7 @@ func (server *Server) listUsers(ctx *gin.Context) {
 }
 
 type loginUserRequest struct {
-	ID       int32  `json:"id" binding:"required"`
-	Name     string `json:"name" binding:"required,alphanum"`
+	Email string `json:"email" binding:"required"`
 	Password string `json:"password" binding:"required,min=6"`
 }
 
@@ -179,7 +177,7 @@ func (server *Server) loginUser(ctx *gin.Context) {
 		return
 	}
 
-	user, err := server.store.GetUser(ctx, req.ID)
+	user, err := server.store.GetUserByParams(ctx, req.Email)
 	if err != nil {
 		if errors.Is(err, db.ErrRecordNotFound) {
 			ctx.JSON(http.StatusNotFound, errorResponse(err))
@@ -208,7 +206,7 @@ func (server *Server) loginUser(ctx *gin.Context) {
 		return
 	}
 
-	accessToken, accessPayload, err := server.tokenMaker.CreateToken(
+	accessToken, err := server.tokenMaker.CreateToken(
 		user.ID,
 		session.ID,
 		user.Role,
@@ -226,7 +224,6 @@ func (server *Server) loginUser(ctx *gin.Context) {
 	rsp := loginUserResponse{
 		SessionID:            session.ID,
 		AccessToken:          accessToken,
-		AccessTokenExpiresAt: accessPayload.ExpiredAt,
 		User:                 newUserResponse(user),
 	}
 	ctx.JSON(http.StatusOK, rsp)
