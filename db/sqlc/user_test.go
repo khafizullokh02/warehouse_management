@@ -64,7 +64,6 @@ func TestListUser(t *testing.T) {
 	}
 
 	arg := ListUsersParams{
-		Name:   lastUser.Name,
 		Limit:  5,
 		Offset: 0,
 	}
@@ -83,8 +82,9 @@ func TestUpdateUser(t *testing.T) {
 	user1 := createRandomUser(t)
 
 	arg := UpdateUserParams{
-		ID:        user1.ID,
-		Password:  user1.Password,
+		Name:     user1.Name,
+		ID:       user1.ID,
+		Password: user1.Password,
 	}
 
 	user2, err := testStore.UpdateUser(context.Background(), arg)

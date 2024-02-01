@@ -11,6 +11,12 @@ INSERT INTO users (
   sqlc.arg(password)
 ) RETURNING *;
 
+-- name: GetUserByParams :one
+SELECT *
+FROM users
+WHERE email = sqlc.arg(email)
+LIMIT 1;
+
 -- name: GetUser :one
 SELECT * 
 FROM users
@@ -20,10 +26,9 @@ LIMIT 1;
 -- name: ListUsers :many
 SELECT * 
 FROM users
-WHERE name = $1
 ORDER BY id
-LIMIT $2
-OFFSET $3;
+LIMIT $1
+OFFSET $2;
 
 -- name: UpdateUser :one
 UPDATE users

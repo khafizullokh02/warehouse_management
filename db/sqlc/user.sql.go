@@ -84,23 +84,44 @@ func (q *Queries) GetUser(ctx context.Context, id int32) (User, error) {
 	return i, err
 }
 
+const getUserByParams = `-- name: GetUserByParams :one
+SELECT id, role, name, email, password, created_at, updated_at, deleted_at
+FROM users
+WHERE email = $1
+LIMIT 1
+`
+
+func (q *Queries) GetUserByParams(ctx context.Context, email string) (User, error) {
+	row := q.db.QueryRow(ctx, getUserByParams, email)
+	var i User
+	err := row.Scan(
+		&i.ID,
+		&i.Role,
+		&i.Name,
+		&i.Email,
+		&i.Password,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.DeletedAt,
+	)
+	return i, err
+}
+
 const listUsers = `-- name: ListUsers :many
 SELECT id, role, name, email, password, created_at, updated_at, deleted_at 
 FROM users
-WHERE name = $1
 ORDER BY id
-LIMIT $2
-OFFSET $3
+LIMIT $1
+OFFSET $2
 `
 
 type ListUsersParams struct {
-	Name   string `json:"name"`
-	Limit  int32  `json:"limit"`
-	Offset int32  `json:"offset"`
+	Limit  int32 `json:"limit"`
+	Offset int32 `json:"offset"`
 }
 
 func (q *Queries) ListUsers(ctx context.Context, arg ListUsersParams) ([]User, error) {
-	rows, err := q.db.Query(ctx, listUsers, arg.Name, arg.Limit, arg.Offset)
+	rows, err := q.db.Query(ctx, listUsers, arg.Limit, arg.Offset)
 	if err != nil {
 		return nil, err
 	}
