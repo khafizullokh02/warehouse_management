@@ -9,15 +9,10 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/jaswdr/faker"
 	db "github.com/khafizullokh02/warehouse_management/db/sqlc"
 	"github.com/khafizullokh02/warehouse_management/token"
 	"github.com/khafizullokh02/warehouse_management/util"
 	"github.com/stretchr/testify/require"
-)
-
-var (
-	fake faker.Faker
 )
 
 const (
@@ -107,7 +102,7 @@ func TestAuthMiddleware(t *testing.T) {
 			server, err := NewServer(config, store)
 			if err != nil {
 				t.Error("Error creating server:", err)
-        		return
+				return
 			}
 			authPath := "/auth"
 			server.router.GET(
