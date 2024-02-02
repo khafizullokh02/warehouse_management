@@ -97,8 +97,11 @@ func TestAuthMiddleware(t *testing.T) {
 		tc := testCases[i]
 
 		t.Run(tc.name, func(t *testing.T) {
+			// use mock db
 			store := db.NewStore(context.Background(), dbSource)
+			// move config declaration to main test
 			config := util.Config{}
+			// create a method to create a mock server
 			server, err := NewServer(config, store)
 			if err != nil {
 				t.Error("Error creating server:", err)

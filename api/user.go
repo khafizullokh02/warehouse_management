@@ -7,6 +7,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	db "github.com/khafizullokh02/warehouse_management/db/sqlc"
+	"github.com/khafizullokh02/warehouse_management/token"
 	"github.com/khafizullokh02/warehouse_management/util"
 )
 
@@ -88,6 +89,13 @@ func (server *Server) getUser(ctx *gin.Context) {
 		return
 	}
 
+	authPayload := ctx.MustGet(authorisationPayloadKey).(*token.Payload)
+	if user.ID != authPayload.ID {
+		err := errors.New("account doesn't belong to the authenticated user")
+		ctx.JSON(http.StatusUnauthorized, errorResponse(err))
+		return
+	}
+
 	ctx.JSON(http.StatusOK, user)
 }
 
@@ -157,7 +165,7 @@ func (server *Server) listUsers(ctx *gin.Context) {
 }
 
 type loginUserRequest struct {
-	Email string `json:"email" binding:"required"`
+	Email    string `json:"email" binding:"required"`
 	Password string `json:"password" binding:"required,min=6"`
 }
 
@@ -216,15 +224,12 @@ func (server *Server) loginUser(ctx *gin.Context) {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
 		return
 	}
-	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
-		return
-	}
 
 	rsp := loginUserResponse{
-		SessionID:            session.ID,
-		AccessToken:          accessToken,
-		User:                 newUserResponse(user),
+		SessionID:   session.ID,
+		AccessToken: accessToken,
+		User:        newUserResponse(user),
 	}
+
 	ctx.JSON(http.StatusOK, rsp)
 }
