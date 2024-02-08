@@ -107,10 +107,11 @@ type updateUserRequest struct {
 
 func (server *Server) updateUser(ctx *gin.Context) {
 	var req updateUserRequest
-	if err := ctx.ShouldBindUri(&req); err != nil {
+	if err := ctx.ShouldBindJSON(&req); err != nil {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
 	}
+	  
 
 	if req.Password != "" {
 		password, err := util.HashPassword(req.Password)
@@ -138,9 +139,8 @@ func (server *Server) updateUser(ctx *gin.Context) {
 }
 
 type listUserRequest struct {
-	Name     string `json:"name" binding:"required,alphanum"`
-	PageID   int32  `from:"page_id" binding:"required,min=1"`
-	PageSize int32  `from:"page_size" binfing:"required,min=5,max=10"`
+	PageID   int32 `form:"page_id" binding:"required,min=0"`
+	PageSize int32 `form:"page_size" binfing:"required,min=5,max=10"`
 }
 
 func (server *Server) listUsers(ctx *gin.Context) {
@@ -151,8 +151,8 @@ func (server *Server) listUsers(ctx *gin.Context) {
 	}
 
 	arg := db.ListUsersParams{
-		Limit:  req.PageID,
-		Offset: req.PageSize,
+		Limit:  req.PageSize,
+		Offset: (req.PageID - 1) * req.PageSize,
 	}
 
 	users, err := server.store.ListUsers(ctx, arg)

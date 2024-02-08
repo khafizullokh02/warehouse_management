@@ -1,7 +1,6 @@
 package api
 
 import (
-	"context"
 	"fmt"
 	"net/http"
 	"net/http/httptest"
@@ -9,14 +8,9 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	db "github.com/khafizullokh02/warehouse_management/db/sqlc"
 	"github.com/khafizullokh02/warehouse_management/token"
 	"github.com/khafizullokh02/warehouse_management/util"
 	"github.com/stretchr/testify/require"
-)
-
-const (
-	dbSource = "postgres://root:secret@localhost:5432/warehouse_management?sslmode=disable"
 )
 
 func addAuthorization(
@@ -85,7 +79,7 @@ func TestAuthMiddleware(t *testing.T) {
 		{
 			name: "ExpiredToken",
 			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
-				addAuthorization(t, request, tokenMaker, authorizationTypeBearer, userID, sessionID, role, time.Minute)
+				addAuthorization(t, request, tokenMaker, authorizationTypeBearer, userID, sessionID, role, -time.Minute)
 			},
 			checkResponse: func(t *testing.T, recorder *httptest.ResponseRecorder) {
 				require.Equal(t, http.StatusUnauthorized, recorder.Code)
@@ -97,16 +91,7 @@ func TestAuthMiddleware(t *testing.T) {
 		tc := testCases[i]
 
 		t.Run(tc.name, func(t *testing.T) {
-			// use mock db
-			store := db.NewStore(context.Background(), dbSource)
-			// move config declaration to main test
-			config := util.Config{}
-			// create a method to create a mock server
-			server, err := NewServer(config, store)
-			if err != nil {
-				t.Error("Error creating server:", err)
-				return
-			}
+			server := newTestServer(t, nil)
 			authPath := "/auth"
 			server.router.GET(
 				authPath,
