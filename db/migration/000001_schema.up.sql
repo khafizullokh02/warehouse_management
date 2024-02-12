@@ -102,7 +102,7 @@ CREATE TABLE "sessions" (
 );
 
 ALTER TABLE "sessions"
-ADD FOREIGN KEY ("user_id") REFERENCES "users" ("id");
+ADD FOREIGN KEY ("user_id") REFERENCES "users" ("id") ON DELETE CASCADE;
 
 ALTER TABLE "accounts"
 ADD FOREIGN KEY ("user_id") REFERENCES "users" ("id") ON DELETE CASCADE;
