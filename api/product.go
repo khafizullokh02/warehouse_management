@@ -106,4 +106,41 @@ func (server *Server) listProduct(ctx *gin.Context) {
 }
 
 type updateProductRequest struct {
+	Name           string  `json:"name"`
+	SupCode        string  `json:"sup_code"`
+	BarCode        string  `json:"bar_code"`
+	Image          string  `json:"image"`
+	Brand          string  `json:"brand"`
+	WholesalePrice float64 `json:"wholesale_price"`
+	RetailPrice    float64 `json:"retail_price"`
+	Discount       float64 `json:"discount"`
+	ID             int64   `uri:"id" binding:"required,min=1"`
+}
+
+func (server *Server) updateProduct(ctx *gin.Context) {
+	var req updateProductRequest
+	if err := ctx.ShouldBindJSON(&req); err != nil {
+		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		return
+	}
+
+	arg := db.UpdateProductParams{
+		Name:           req.Name,
+		SupCode:        req.SupCode,
+		BarCode:        req.BarCode,
+		Image:          req.Image,
+		Brand:          req.Brand,
+		WholesalePrice: req.WholesalePrice,
+		RetailPrice:    req.RetailPrice,
+		Discount:       req.Discount,
+		ID:             int32(req.ID),
+	}
+
+	product, err := server.store.UpdateProduct(ctx, arg)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
+	}
+
+	ctx.JSON(http.StatusOK, product)
 }

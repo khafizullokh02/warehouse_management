@@ -52,6 +52,7 @@ func (server *Server) setupRouter() {
 	authRoutes.POST("/products", server.createProduct)
 	authRoutes.GET("/product/:id", server.getProduct)
 	authRoutes.GET("/products", server.listProduct)
+	authRoutes.PUT("/products/:id", server.updateProduct)
 
 	server.router = router
 }
