@@ -106,23 +106,32 @@ func (server *Server) listProduct(ctx *gin.Context) {
 }
 
 type updateProductRequest struct {
-	Name           string  `json:"name"`
-	SupCode        string  `json:"sup_code"`
-	BarCode        string  `json:"bar_code"`
-	Image          string  `json:"image"`
-	Brand          string  `json:"brand"`
-	WholesalePrice float64 `json:"wholesale_price"`
-	RetailPrice    float64 `json:"retail_price"`
-	Discount       float64 `json:"discount"`
+	Name           string  `json:"name" binding:"required,alphanum"`
+	SupCode        string  `json:"sup_code" binding:"required,gte=5"`
+	BarCode        string  `json:"bar_code" binding:"required,gte=5"`
+	Image          string  `json:"image" binding:"gte=0"`
+	Brand          string  `json:"brand" binding:"required,min=4"`
+	WholesalePrice float64 `json:"wholesale_price" binding:"required,gt=0"`
+	RetailPrice    float64 `json:"retail_price" binding:"required,gt=0"`
+	Discount       float64 `json:"discount" binding:"required,gte=0"`
 	ID             int64   `uri:"id" binding:"required,min=1"`
 }
 
 func (server *Server) updateProduct(ctx *gin.Context) {
 	var req updateProductRequest
+
+	if err := ctx.ShouldBindUri(&req); err != nil {
+		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		return
+	}
+	fmt.Println(req)
+
 	if err := ctx.ShouldBindJSON(&req); err != nil {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
 	}
+	fmt.Println(req)
+
 
 	arg := db.UpdateProductParams{
 		Name:           req.Name,
