@@ -9,7 +9,6 @@ import (
 	"context"
 
 	"github.com/jackc/pgx/v5/pgtype"
-	zero "gopkg.in/guregu/null.v4/zero"
 )
 
 const createProduct = `-- name: CreateProduct :one
@@ -106,20 +105,26 @@ func (q *Queries) GetProduct(ctx context.Context, id int32) (Product, error) {
 const listProducts = `-- name: ListProducts :many
 SELECT id, name, sup_code, bar_code, image, brand, wholesale_price, retail_price, discount, created_at 
 FROM products
-WHERE name like '%' || $1 || '%'
+WHERE true and 
+  case
+    when $1::varchar != ''
+      then name ilike '%' || $1 || '%'
+    else
+    true
+  end
 ORDER BY id
 LIMIT $3
 OFFSET $2
 `
 
 type ListProductsParams struct {
-	Search zero.String `json:"search"`
-	Offset int32       `json:"offset"`
-	Limit  int32       `json:"limit"`
+	Name   string `json:"name"`
+	Offset int32  `json:"offset"`
+	Limit  int32  `json:"limit"`
 }
 
 func (q *Queries) ListProducts(ctx context.Context, arg ListProductsParams) ([]Product, error) {
-	rows, err := q.db.Query(ctx, listProducts, arg.Search, arg.Offset, arg.Limit)
+	rows, err := q.db.Query(ctx, listProducts, arg.Name, arg.Offset, arg.Limit)
 	if err != nil {
 		return nil, err
 	}

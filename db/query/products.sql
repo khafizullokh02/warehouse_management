@@ -26,7 +26,13 @@ LIMIT 1;
 -- name: ListProducts :many
 SELECT * 
 FROM products
-WHERE name like '%' || sqlc.arg('search') || '%'
+WHERE true and 
+  case
+    when sqlc.arg('name')::varchar != ''
+      then name ilike '%' || sqlc.arg('name') || '%'
+    else
+    true
+  end
 ORDER BY id
 LIMIT sqlc.arg('limit')
 OFFSET sqlc.arg('offset');

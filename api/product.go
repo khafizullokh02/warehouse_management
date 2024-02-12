@@ -2,6 +2,7 @@ package api
 
 import (
 	"errors"
+	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -88,6 +89,8 @@ func (server *Server) listProduct(ctx *gin.Context) {
 		return
 	}
 
+	fmt.Println(req)
+
 	arg := db.ListProductsParams{
 		Limit:  req.PageSize,
 		Offset: (req.PageID - 1) * req.PageSize,
@@ -103,5 +106,4 @@ func (server *Server) listProduct(ctx *gin.Context) {
 }
 
 type updateProductRequest struct {
-	
 }
