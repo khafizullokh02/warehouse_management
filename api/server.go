@@ -57,6 +57,10 @@ func (server *Server) setupRouter() {
 	authRoutes.POST("/sessions", server.createSession)
 	authRoutes.POST("/sessions/:id", server.getSession)
 
+	authRoutes.POST("/entry_items", server.createEntryItem)
+	authRoutes.POST("/entry_items/:id", server.getEntryItem)
+	
+
 	server.router = router
 }
 
