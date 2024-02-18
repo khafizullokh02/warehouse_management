@@ -54,12 +54,15 @@ func (server *Server) setupRouter() {
 	authRoutes.GET("/products", server.listProduct)
 	authRoutes.PUT("/products/:id", server.updateProduct)
 
-	authRoutes.POST("/sessions", server.createSession)
-	authRoutes.POST("/sessions/:id", server.getSession)
+	authRoutes.GET("/sessions", server.getAllSessions)
+
+	authRoutes.POST("/entry_groups", server.CreateEntryGroup)
 
 	authRoutes.POST("/entry_items", server.createEntryItem)
-	authRoutes.POST("/entry_items/:id", server.getEntryItem)
-	
+	authRoutes.GET("/entry_items/:id", server.getEntryItem)
+	authRoutes.GET("/entry_items", server.ListEntryItems)
+	authRoutes.PUT("/entry_items/:id", server.updateEntryItem)
+	authRoutes.DELETE("/entry_items/:id", server.deleteEntryItem)
 
 	server.router = router
 }
