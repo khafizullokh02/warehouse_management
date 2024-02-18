@@ -24,10 +24,10 @@ type Querier interface {
 	DeleteUser(ctx context.Context, id int32) error
 	GetAccount(ctx context.Context, id int32) (Account, error)
 	GetAgreementForm(ctx context.Context, id int32) (AgreementForm, error)
+	GetAllSessions(ctx context.Context, arg GetAllSessionsParams) ([]Session, error)
 	GetEntryGroup(ctx context.Context, id int32) (EntryGroup, error)
 	GetEntryItem(ctx context.Context, id int32) (EntryItem, error)
 	GetProduct(ctx context.Context, id int32) (Product, error)
-	GetSession(ctx context.Context, id int32) (Session, error)
 	GetUser(ctx context.Context, id int32) (User, error)
 	GetUserByParams(ctx context.Context, email string) (User, error)
 	ListAccounts(ctx context.Context, arg ListAccountsParams) ([]Account, error)

@@ -13,8 +13,9 @@ VALUES (
   )
 RETURNING *;
 
--- name: GetSession :one
+-- name: GetAllSessions :many
 SELECT *
 FROM sessions
-WHERE id = sqlc.arg(id)
-LIMIT 1;
+WHERE user_id = sqlc.arg(user_id)
+LIMIT sqlc.arg('limit')
+OFFSET sqlc.arg('offset');

@@ -17,7 +17,8 @@ LIMIT 1;
 SELECT *
 FROM entry_items
 ORDER BY id DESC
-LIMIT sqlc.arg('limit') OFFSET sqlc.arg('offset');
+LIMIT sqlc.arg('limit')
+OFFSET sqlc.arg('offset');
 
 -- name: UpdateEntryItem :one
 UPDATE entry_items

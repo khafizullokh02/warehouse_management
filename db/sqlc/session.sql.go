@@ -51,23 +51,43 @@ func (q *Queries) CreateSession(ctx context.Context, arg CreateSessionParams) (S
 	return i, err
 }
 
-const getSession = `-- name: GetSession :one
+const getAllSessions = `-- name: GetAllSessions :many
 SELECT id, user_agent, client_ip, user_id, is_blocked, created_at
 FROM sessions
-WHERE id = $1
-LIMIT 1
+WHERE user_id = $1
+LIMIT $3
+OFFSET $2
 `
 
-func (q *Queries) GetSession(ctx context.Context, id int32) (Session, error) {
-	row := q.db.QueryRow(ctx, getSession, id)
-	var i Session
-	err := row.Scan(
-		&i.ID,
-		&i.UserAgent,
-		&i.ClientIp,
-		&i.UserID,
-		&i.IsBlocked,
-		&i.CreatedAt,
-	)
-	return i, err
+type GetAllSessionsParams struct {
+	UserID int32 `json:"user_id"`
+	Offset int32 `json:"offset"`
+	Limit  int32 `json:"limit"`
+}
+
+func (q *Queries) GetAllSessions(ctx context.Context, arg GetAllSessionsParams) ([]Session, error) {
+	rows, err := q.db.Query(ctx, getAllSessions, arg.UserID, arg.Offset, arg.Limit)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Session
+	for rows.Next() {
+		var i Session
+		if err := rows.Scan(
+			&i.ID,
+			&i.UserAgent,
+			&i.ClientIp,
+			&i.UserID,
+			&i.IsBlocked,
+			&i.CreatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }

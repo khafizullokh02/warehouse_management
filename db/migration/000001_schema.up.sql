@@ -6,7 +6,11 @@ CREATE TYPE "action_type" AS ENUM (
   'none'
 );
 
-CREATE TYPE "pricing_type" AS ENUM ('retail', 'wholesale', 'none');
+CREATE TYPE "pricing_type" AS ENUM (
+  'retail',
+  'wholesale',
+  'none'
+);
 
 CREATE TYPE "entry_group_status" AS ENUM (
   'initial',
@@ -28,7 +32,12 @@ CREATE TYPE "agreement_forms_status" AS ENUM (
   ''
 );
 
-CREATE TYPE "currency_code" AS ENUM ('usd', 'uzs', 'u.e', 'none');
+CREATE TYPE "currency_code" AS ENUM (
+  'usd',
+  'uzs',
+  'u.e',
+  'none'
+);
 
 CREATE TABLE "users" (
   "id" serial PRIMARY KEY,

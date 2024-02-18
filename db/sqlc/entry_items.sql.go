@@ -74,7 +74,8 @@ const listEntryItems = `-- name: ListEntryItems :many
 SELECT id, product_id, entry_group_id, sup_code, created_at
 FROM entry_items
 ORDER BY id DESC
-LIMIT $2 OFFSET $1
+LIMIT $2
+OFFSET $1
 `
 
 type ListEntryItemsParams struct {
