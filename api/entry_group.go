@@ -87,7 +87,7 @@ type getEntryGroupRequest struct {
 
 type EntryGroupWithItems struct {
 	db.EntryGroup
-	EntryItems []db.EntryItem `json:"entry_items"`
+	EntryItems []db.GetEntryItemsByEntryGroupIdRow `json:"entry_items"`
 }
 
 func (server *Server) GetEntryGroup(ctx *gin.Context) {
