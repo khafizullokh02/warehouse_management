@@ -1,4 +1,4 @@
-package db
+package main
 
 import (
 	"context"
@@ -17,7 +17,10 @@ func main() {
 	}
 
 	store := db.NewStore(context.Background(), config.DBSource)
-	server := api.NewServer(store)
+	server, err := api.NewServer(config, store)
+	if err != nil {
+		log.Fatal("cannot create server")
+	}
 
 	err = server.Start(config.ServerAddress)
 	if err != nil {

@@ -26,10 +26,16 @@ LIMIT 1;
 -- name: ListProducts :many
 SELECT * 
 FROM products
-WHERE name = $1
+WHERE true and 
+  case
+    when sqlc.arg('name')::varchar != ''
+      then name ilike '%' || sqlc.arg('name') || '%'
+    else
+    true
+  end
 ORDER BY id
-LIMIT $2
-OFFSET $3;
+LIMIT sqlc.arg('limit')
+OFFSET sqlc.arg('offset');
 
 -- name: UpdateProduct :one
 UPDATE products
