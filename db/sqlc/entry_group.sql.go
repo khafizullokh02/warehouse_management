@@ -8,6 +8,7 @@ package db
 import (
 	"context"
 
+	"github.com/jackc/pgx/v5/pgtype"
 	zero "gopkg.in/guregu/null.v4/zero"
 )
 
@@ -101,26 +102,47 @@ func (q *Queries) GetEntryGroup(ctx context.Context, id int32) (EntryGroup, erro
 }
 
 const getEntryItemsByEntryGroupId = `-- name: GetEntryItemsByEntryGroupId :many
-SELECT id, product_id, entry_group_id, sup_code, created_at
-FROM entry_items
+SELECT ei.id, ei.product_id, ei.entry_group_id, ei.sup_code, ei.created_at,
+  products.id, products.name, products.sup_code, products.bar_code, products.image, products.brand, products.wholesale_price, products.retail_price, products.discount, products.created_at
+FROM entry_items AS ei
+  LEFT JOIN products ON ei.product_id = products.id
 WHERE entry_group_id = $1
 `
 
-func (q *Queries) GetEntryItemsByEntryGroupId(ctx context.Context, entryGroupID int32) ([]EntryItem, error) {
+type GetEntryItemsByEntryGroupIdRow struct {
+	ID           int32            `json:"id"`
+	ProductID    int32            `json:"product_id"`
+	EntryGroupID int32            `json:"entry_group_id"`
+	SupCode      string           `json:"sup_code"`
+	CreatedAt    pgtype.Timestamp `json:"created_at"`
+	Product      Product          `json:"product"`
+}
+
+func (q *Queries) GetEntryItemsByEntryGroupId(ctx context.Context, entryGroupID int32) ([]GetEntryItemsByEntryGroupIdRow, error) {
 	rows, err := q.db.Query(ctx, getEntryItemsByEntryGroupId, entryGroupID)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []EntryItem
+	var items []GetEntryItemsByEntryGroupIdRow
 	for rows.Next() {
-		var i EntryItem
+		var i GetEntryItemsByEntryGroupIdRow
 		if err := rows.Scan(
 			&i.ID,
 			&i.ProductID,
 			&i.EntryGroupID,
 			&i.SupCode,
 			&i.CreatedAt,
+			&i.Product.ID,
+			&i.Product.Name,
+			&i.Product.SupCode,
+			&i.Product.BarCode,
+			&i.Product.Image,
+			&i.Product.Brand,
+			&i.Product.WholesalePrice,
+			&i.Product.RetailPrice,
+			&i.Product.Discount,
+			&i.Product.CreatedAt,
 		); err != nil {
 			return nil, err
 		}

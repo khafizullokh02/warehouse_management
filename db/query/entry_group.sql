@@ -24,8 +24,10 @@ WHERE id = sqlc.arg(id)
 LIMIT 1;
 
 -- name: GetEntryItemsByEntryGroupId :many
-SELECT *
-FROM entry_items
+SELECT ei.*,
+  sqlc.embed(products)
+FROM entry_items AS ei
+  LEFT JOIN products ON ei.product_id = products.id
 WHERE entry_group_id = sqlc.arg(entry_group_id);
 
 -- name: ListEntryGroups :many
