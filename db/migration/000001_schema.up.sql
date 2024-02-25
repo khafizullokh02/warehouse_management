@@ -6,11 +6,7 @@ CREATE TYPE "action_type" AS ENUM (
   'none'
 );
 
-CREATE TYPE "pricing_type" AS ENUM (
-  'retail',
-  'wholesale',
-  'none'
-);
+CREATE TYPE "pricing_type" AS ENUM ('retail', 'wholesale', 'none');
 
 CREATE TYPE "entry_group_status" AS ENUM (
   'initial',
@@ -32,12 +28,7 @@ CREATE TYPE "agreement_forms_status" AS ENUM (
   ''
 );
 
-CREATE TYPE "currency_code" AS ENUM (
-  'usd',
-  'uzs',
-  'u.e',
-  'none'
-);
+CREATE TYPE "currency_code" AS ENUM ('usd', 'uzs', 'u.e', 'none');
 
 CREATE TABLE "users" (
   "id" serial PRIMARY KEY,
@@ -109,6 +100,13 @@ CREATE TABLE "sessions" (
   "is_blocked" boolean NOT NULL DEFAULT false,
   "created_at" timestamp NOT NULL DEFAULT (NOW())
 );
+
+CREATE VIEW "entry_group_view" AS
+SELECT eg.*,
+  json_agg(ei) AS entry_items
+FROM entry_group AS eg
+  LEFT JOIN entry_items AS ei ON eg.id = ei.entry_group_id
+GROUP BY eg.id;
 
 ALTER TABLE "sessions"
 ADD FOREIGN KEY ("user_id") REFERENCES "users" ("id") ON DELETE CASCADE;

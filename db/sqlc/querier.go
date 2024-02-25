@@ -27,6 +27,7 @@ type Querier interface {
 	GetAllSessions(ctx context.Context, arg GetAllSessionsParams) ([]Session, error)
 	GetEntryGroup(ctx context.Context, id int32) (EntryGroup, error)
 	GetEntryItem(ctx context.Context, id int32) (EntryItem, error)
+	GetEntryItemsByEntryGroupId(ctx context.Context, entryGroupID int32) ([]EntryItem, error)
 	GetProduct(ctx context.Context, id int32) (Product, error)
 	GetUser(ctx context.Context, id int32) (User, error)
 	GetUserByParams(ctx context.Context, email string) (User, error)

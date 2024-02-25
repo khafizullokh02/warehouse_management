@@ -57,6 +57,8 @@ func (server *Server) setupRouter() {
 	authRoutes.GET("/sessions", server.getAllSessions)
 
 	authRoutes.POST("/entry_groups", server.CreateEntryGroup)
+	authRoutes.GET("/entry_groups/:id", server.GetEntryGroup)
+	authRoutes.GET("/entry_groups", server.ListEntryGroups)
 
 	authRoutes.POST("/entry_items", server.createEntryItem)
 	authRoutes.GET("/entry_items/:id", server.getEntryItem)

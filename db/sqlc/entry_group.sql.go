@@ -13,20 +13,22 @@ import (
 
 const createEntryGroup = `-- name: CreateEntryGroup :one
 INSERT INTO entry_group (
-  quantity,
-  action_type,
-  pricing_type,
-  price,
-  currency,
-  entry_group_status
-) VALUES (
-  $1,
-  $2,
-  $3,
-  $4,
-  $5,
-  $6
-) RETURNING id, quantity, action_type, pricing_type, price, currency, entry_group_status, created_at, updated_at, deleted_at
+    quantity,
+    action_type,
+    pricing_type,
+    price,
+    currency,
+    entry_group_status
+  )
+VALUES (
+    $1,
+    $2,
+    $3,
+    $4,
+    $5,
+    $6
+  )
+RETURNING id, quantity, action_type, pricing_type, price, currency, entry_group_status, created_at, updated_at, deleted_at
 `
 
 type CreateEntryGroupParams struct {
@@ -74,7 +76,7 @@ func (q *Queries) DeleteEntryGroup(ctx context.Context, id int32) error {
 }
 
 const getEntryGroup = `-- name: GetEntryGroup :one
-SELECT id, quantity, action_type, pricing_type, price, currency, entry_group_status, created_at, updated_at, deleted_at 
+SELECT id, quantity, action_type, pricing_type, price, currency, entry_group_status, created_at, updated_at, deleted_at
 FROM entry_group
 WHERE id = $1
 LIMIT 1
@@ -98,12 +100,43 @@ func (q *Queries) GetEntryGroup(ctx context.Context, id int32) (EntryGroup, erro
 	return i, err
 }
 
+const getEntryItemsByEntryGroupId = `-- name: GetEntryItemsByEntryGroupId :many
+SELECT id, product_id, entry_group_id, sup_code, created_at
+FROM entry_items
+WHERE entry_group_id = $1
+`
+
+func (q *Queries) GetEntryItemsByEntryGroupId(ctx context.Context, entryGroupID int32) ([]EntryItem, error) {
+	rows, err := q.db.Query(ctx, getEntryItemsByEntryGroupId, entryGroupID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []EntryItem
+	for rows.Next() {
+		var i EntryItem
+		if err := rows.Scan(
+			&i.ID,
+			&i.ProductID,
+			&i.EntryGroupID,
+			&i.SupCode,
+			&i.CreatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const listEntryGroups = `-- name: ListEntryGroups :many
-SELECT id, quantity, action_type, pricing_type, price, currency, entry_group_status, created_at, updated_at, deleted_at 
+SELECT id, quantity, action_type, pricing_type, price, currency, entry_group_status, created_at, updated_at, deleted_at
 FROM entry_group
 ORDER BY id DESC
-LIMIT $2
-OFFSET $1
+LIMIT $2 OFFSET $1
 `
 
 type ListEntryGroupsParams struct {
@@ -144,13 +177,15 @@ func (q *Queries) ListEntryGroups(ctx context.Context, arg ListEntryGroupsParams
 
 const updateEntryGroup = `-- name: UpdateEntryGroup :one
 UPDATE entry_group
-SET 
-quantity = COALESCE($1, quantity),
-action_type = COALESCE($2, action_type),
-pricing_type = COALESCE($3, pricing_type),
-price = COALESCE($4, price),
-currency = COALESCE($5, currency),
-entry_group_status = COALESCE($6, entry_group_status)
+SET quantity = COALESCE($1, quantity),
+  action_type = COALESCE($2, action_type),
+  pricing_type = COALESCE($3, pricing_type),
+  price = COALESCE($4, price),
+  currency = COALESCE($5, currency),
+  entry_group_status = COALESCE(
+    $6,
+    entry_group_status
+  )
 WHERE id = $7
 RETURNING id, quantity, action_type, pricing_type, price, currency, entry_group_status, created_at, updated_at, deleted_at
 `

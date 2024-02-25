@@ -268,6 +268,20 @@ type EntryGroup struct {
 	DeletedAt        zero.Time        `json:"deleted_at"`
 }
 
+type EntryGroupView struct {
+	ID               int32            `json:"id"`
+	Quantity         int32            `json:"quantity"`
+	ActionType       ActionType       `json:"action_type"`
+	PricingType      PricingType      `json:"pricing_type"`
+	Price            float64          `json:"price"`
+	Currency         CurrencyCode     `json:"currency"`
+	EntryGroupStatus EntryGroupStatus `json:"entry_group_status"`
+	CreatedAt        pgtype.Timestamp `json:"created_at"`
+	UpdatedAt        pgtype.Timestamp `json:"updated_at"`
+	DeletedAt        zero.Time        `json:"deleted_at"`
+	EntryItems       []byte           `json:"entry_items"`
+}
+
 type EntryItem struct {
 	ID           int32            `json:"id"`
 	ProductID    int32            `json:"product_id"`
