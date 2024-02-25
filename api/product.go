@@ -150,3 +150,23 @@ func (server *Server) updateProduct(ctx *gin.Context) {
 
 	ctx.JSON(http.StatusOK, product)
 }
+
+type deleteProductRequest struct {
+	ID int32 `uri:"id" binding:"required,min=1"`
+}
+
+func (server *Server) deleteProduct(ctx *gin.Context) {
+	var req deleteProductRequest
+	if err := ctx.ShouldBindUri(&req); err != nil {
+		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		return
+	}
+
+	err := server.store.DeleteProduct(ctx, req.ID)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
+	}
+
+	ctx.Status(http.StatusOK)
+}
