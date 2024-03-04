@@ -41,6 +41,13 @@ func (server *Server) setupRouter() {
 	router.POST("/tokens/renew_access", func(ctx *gin.Context) {
 		ctx.JSON(http.StatusOK, gin.H{"msg": "ok"})
 	})
+
+	authRoutes := router.Group("/").Use(authMiddleware(server.tokenMaker))
+	authRoutes.GET("/user/:id", server.getUser)
+	authRoutes.PUT("/users/update", server.updateUser)
+	authRoutes.GET("/users/", server.listUsers)
+	authRoutes.DELETE("/user/:id", server.deleteUser)
+
 }
 
 func (server *Server) Start(address string) error {
