@@ -48,6 +48,11 @@ func (server *Server) setupRouter() {
 	authRoutes.GET("/users/", server.listUsers)
 	authRoutes.DELETE("/user/:id", server.deleteUser)
 
+	authRoutes.POST("/accounts", server.createAccount)
+	authRoutes.GET("/account/:id", server.getAccount)
+	authRoutes.GET("/accounts", server.listAccount)
+	authRoutes.DELETE("/account/:id", server.deleteAccount)
+
 }
 
 func (server *Server) Start(address string) error {
