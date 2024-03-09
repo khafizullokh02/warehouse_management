@@ -1,5 +1,9 @@
 -- name: CreateEntryItem :one
-INSERT INTO entry_items (product_id, entry_group_id, sup_code)
+INSERT INTO entry_items (
+  product_id,
+  entry_group_id,
+  sup_code
+  )
 VALUES (
     sqlc.arg(product_id),
     sqlc.arg(entry_group_id),

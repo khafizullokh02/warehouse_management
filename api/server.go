@@ -11,10 +11,10 @@ import (
 )
 
 type Server struct {
-	config util.Config
-	store db.Store
+	config     util.Config
+	store      db.Store
 	tokenMaker token.Maker
-	router *gin.Engine
+	router     *gin.Engine
 }
 
 func NewServer(config util.Config, store db.Store) (*Server, error) {
@@ -24,8 +24,8 @@ func NewServer(config util.Config, store db.Store) (*Server, error) {
 	}
 
 	server := &Server{
-		config: config,
-		store: store,
+		config:     config,
+		store:      store,
 		tokenMaker: tokenMaker,
 	}
 
@@ -36,7 +36,7 @@ func NewServer(config util.Config, store db.Store) (*Server, error) {
 func (server *Server) setupRouter() {
 	router := gin.Default()
 
-	router.POST("/users",  server.createUser)
+	router.POST("/users", server.createUser)
 	router.POST("/users/login", server.loginUser)
 	router.POST("/tokens/renew_access", func(ctx *gin.Context) {
 		ctx.JSON(http.StatusOK, gin.H{"msg": "ok"})
@@ -59,6 +59,11 @@ func (server *Server) setupRouter() {
 	authRoutes.PUT("/product/:id", server.updateProduct)
 	authRoutes.DELETE("/product/:id", server.deleteProduct)
 
+	authRoutes.POST("/entry_items", server.createEntryItem)
+	authRoutes.GET("/entry_item/:id", server.getEntryItem)
+	authRoutes.GET("/entry_items", server.listEntryItems)
+	authRoutes.PUT("/entry_items/:id", server.updateEntryItem)
+	authRoutes.DELETE("/entry_item/:id", server.deleteEntryItem)
 }
 
 func (server *Server) Start(address string) error {
